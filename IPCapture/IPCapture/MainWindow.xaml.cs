@@ -17,6 +17,8 @@ using System.Text.RegularExpressions;
 using System.Net.Sockets;
 using System.Management;
 using System.Net.NetworkInformation;
+using NativeWifi;
+using System.Collections.ObjectModel;
 
 namespace IPCapture
 {
@@ -52,8 +54,9 @@ namespace IPCapture
             setOSArchitecture();
             setOSManufacturer();
 
+            setSSID();
             setExternalIP();
-            setDefaultGateway();
+            //setDefaultGateway();
 
             //----------------------------------------------------------
 
@@ -134,8 +137,6 @@ namespace IPCapture
                         IPv4 = ip.ToString();
                     }
                 }
-                Console.WriteLine();
-                Console.WriteLine("IPv4:\t{0}", IPv4);
                 Machine.IPv4 = IPv4;
             } catch (Exception ex)
             {
@@ -157,8 +158,6 @@ namespace IPCapture
                         IPv6 = ip.ToString();
                     }
                 }
-                Console.WriteLine();
-                Console.WriteLine("IPv6:\t{0}", IPv6);
                 Machine.IPv6 = IPv6;
             } catch (Exception ex)
             {
@@ -174,8 +173,6 @@ namespace IPCapture
                 ExternalIP = (new WebClient()).DownloadString("http://checkip.dyndns.org/");
                 ExternalIP = (new Regex(@"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"))
                              .Matches(ExternalIP)[0].ToString();
-                Console.WriteLine();
-                Console.WriteLine("External:\t{0}", ExternalIP);
                 Network.ExternalIP = ExternalIP;
             }
             catch (Exception ex) {
@@ -190,12 +187,11 @@ namespace IPCapture
                 string MACAddress = null;
                 ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'TRUE'");
 
-                foreach (var mo in mc.Get())
+                foreach (ManagementObject mo in mc.Get())
                 {
-                    MACAddress = mo["MACAddress"].ToString();
+                    MACAddress = (string)mo["MACAddress"];
+                    Console.WriteLine(MACAddress);
                 }
-                Console.WriteLine();
-                Console.WriteLine("MAC:\t{0}", MACAddress);
                 Machine.MACAddress = MACAddress;
             } catch (Exception ex)
             {
@@ -210,19 +206,92 @@ namespace IPCapture
                 string DefaultGateway = null;
                 ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'TRUE'");
 
-                foreach (var mo in mc.Get())
+                foreach (ManagementObject mo in mc.Get())
                 {
+                    Console.WriteLine(mo["IPEnabled"].ToString());
                     string[] gateways = (string[])mo["DefaultIPGateway"];
                     DefaultGateway = gateways[0];
+                    Console.WriteLine(DefaultGateway);
                 }
                 Console.WriteLine();
                 Console.WriteLine("DefaultGateway:\t{0}", DefaultGateway);
-                Machine.MACAddress = DefaultGateway;
+                Network.DefaultGateway = DefaultGateway;
             }
             catch (NullReferenceException nrEx)
             {
                 throw nrEx;
             }
+        }
+
+        private bool InternetIsAvailable()
+        {
+            try
+            {
+                using (var client = new WebClient())
+                using (var stream = client.OpenRead("http://www.google.com"))
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private void setSSID()
+        {
+            WlanClient wlan = new WlanClient();
+
+            Collection<String> connectedSsids = new Collection<string>();
+
+            foreach (WlanClient.WlanInterface wlanInterface in wlan.Interfaces)
+            {
+                Wlan.Dot11Ssid ssid = wlanInterface.CurrentConnection.wlanAssociationAttributes.dot11Ssid;
+                connectedSsids.Add(new String(Encoding.ASCII.GetChars(ssid.SSID, 0, (int)ssid.SSIDLength)));
+            }
+
+            foreach (var itme in connectedSsids)
+            {
+                Console.WriteLine(itme);
+            }
+        }
+
+        private bool NetworkIsAvailable()
+        {
+            return NetworkIsAvailable(0);
+        }
+
+        private bool NetworkIsAvailable(long minimumSpeed)
+        {
+            if (!NetworkInterface.GetIsNetworkAvailable())
+                return false;
+
+            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                // discard because of standard reasons
+                if ((ni.OperationalStatus != OperationalStatus.Up) ||
+                    (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback) ||
+                    (ni.NetworkInterfaceType == NetworkInterfaceType.Tunnel))
+                    continue;
+
+                // this allow to filter modems, serial, etc.
+                // I use 10000000 as a minimum speed for most cases
+                if (ni.Speed < minimumSpeed)
+                    continue;
+
+                // discard virtual cards (virtual box, virtual pc, etc.)
+                if ((ni.Description.IndexOf("virtual", StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (ni.Name.IndexOf("virtual", StringComparison.OrdinalIgnoreCase) >= 0))
+                    continue;
+
+                // discard "Microsoft Loopback Adapter", it will not show as NetworkInterfaceType.Loopback but as Ethernet Card.
+                if (ni.Description.Equals("Microsoft Loopback Adapter", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                return true;
+            }
+            return false;
         }
 
         private void setSubnetMask()
@@ -232,13 +301,11 @@ namespace IPCapture
                 string SubnetMask = null;
                 ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'TRUE'");
 
-                foreach (var mo in mc.Get())
+                foreach (ManagementObject mo in mc.Get())
                 {
                     string[] subnets = (string[])mo["IPSubnet"];
                     SubnetMask = subnets[0];
                 }
-                Console.WriteLine();
-                Console.WriteLine("SubnetMask:\t{0}", SubnetMask);
                 Machine.MACAddress = SubnetMask;
             }
             catch (Exception ex)
@@ -265,12 +332,10 @@ namespace IPCapture
                 string OSArchitecture = null;
                 ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
 
-                foreach (var mo in mc.Get())
+                foreach (ManagementObject mo in mc.Get())
                 {
                     OSArchitecture = (string)mo["OSArchitecture"];
                 }
-                Console.WriteLine();
-                Console.WriteLine("OSArchitecture:\t{0}", OSArchitecture);
                 Machine.OSArchitecture = OSArchitecture;
             }
             catch (Exception ex)
@@ -286,12 +351,10 @@ namespace IPCapture
                 string OperatingSystem = null;
                 ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
 
-                foreach (var mo in mc.Get())
+                foreach (ManagementObject mo in mc.Get())
                 {
                     OperatingSystem = (string)mo["Caption"];
                 }
-                Console.WriteLine();
-                Console.WriteLine("OperatingSystem:\t{0}", OperatingSystem);
                 Machine.OperatingSystem = OperatingSystem;
             }
             catch (Exception ex)
@@ -307,12 +370,10 @@ namespace IPCapture
                 string Manufacturer = null;
                 ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
 
-                foreach (var mo in mc.Get())
+                foreach (ManagementObject mo in mc.Get())
                 {
                     Manufacturer = (string)mo["Manufacturer"];
                 }
-                Console.WriteLine();
-                Console.WriteLine("Manufacturer:\t{0}", Manufacturer);
                 Machine.OSManufacturer = Manufacturer;
             }
             catch (Exception ex)

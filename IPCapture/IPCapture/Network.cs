@@ -10,7 +10,7 @@ namespace IPCapture
     {
         public string DefaultGateway { get; set; }
         public string ExternalIP { get; set; }
-        public string Name { get; set; }
+        public string HostName { get; set; }
 
         public Network() { }
     }
