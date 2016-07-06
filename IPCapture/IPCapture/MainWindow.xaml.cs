@@ -16,9 +16,10 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Net.Sockets;
 using System.Management;
+using System.ComponentModel;
 using System.Net.NetworkInformation;
-using NativeWifi;
 using System.Collections.ObjectModel;
+using NativeWifi;
 
 namespace IPCapture
 {
@@ -27,8 +28,8 @@ namespace IPCapture
     /// </summary>
     public partial class MainWindow : Window
     {
-        private static Machine Machine = new Machine();
-        private static Network Network = new Network();
+        private static Machine Machine;
+        private static Network Network;
 
         public int RowCount = 0;
         public int ColumnCount = 0;
@@ -40,23 +41,12 @@ namespace IPCapture
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            Network = new Network();
+            Machine = new Machine();
+
             addMachineRow();
 
             addRow("IPv4");
-            setIPv4();
-
-
-            setIPv6();
-            setMACAddress();
-            setSubnetMask();
-            setMachineName();
-            setOperatingSystem();
-            setOSArchitecture();
-            setOSManufacturer();
-
-            setSSID();
-            setExternalIP();
-            //setDefaultGateway();
 
             //----------------------------------------------------------
 
@@ -122,264 +112,6 @@ namespace IPCapture
         private void addNetworkRow()
         {
 
-        }
-
-        private void setIPv4()
-        {
-            try
-            {
-                IPHostEntry IPhostEntry = Dns.GetHostEntry(Dns.GetHostName());
-                string IPv4 = null;
-                foreach (IPAddress ip in IPhostEntry.AddressList)
-                {
-                    if (ip.AddressFamily == AddressFamily.InterNetwork)
-                    {
-                        IPv4 = ip.ToString();
-                    }
-                }
-                Machine.IPv4 = IPv4;
-            } catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        private void setIPv6()
-        {
-            try
-            {
-                string IPv6 = null;
-                IPHostEntry IPhostEntry = Dns.GetHostEntry(Dns.GetHostName());
-
-                foreach (IPAddress ip in IPhostEntry.AddressList)
-                {
-                    if (ip.AddressFamily == AddressFamily.InterNetworkV6)
-                    {
-                        IPv6 = ip.ToString();
-                    }
-                }
-                Machine.IPv6 = IPv6;
-            } catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        private void setExternalIP()
-        {
-            try
-            {
-                string ExternalIP = null;
-                ExternalIP = (new WebClient()).DownloadString("http://checkip.dyndns.org/");
-                ExternalIP = (new Regex(@"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"))
-                             .Matches(ExternalIP)[0].ToString();
-                Network.ExternalIP = ExternalIP;
-            }
-            catch (Exception ex) {
-                throw ex;
-            }
-        }
-
-        private void setMACAddress()
-        {
-            try
-            {
-                string MACAddress = null;
-                ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'TRUE'");
-
-                foreach (ManagementObject mo in mc.Get())
-                {
-                    MACAddress = (string)mo["MACAddress"];
-                    Console.WriteLine(MACAddress);
-                }
-                Machine.MACAddress = MACAddress;
-            } catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        private void setDefaultGateway()
-        {
-            try
-            {
-                string DefaultGateway = null;
-                ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'TRUE'");
-
-                foreach (ManagementObject mo in mc.Get())
-                {
-                    Console.WriteLine(mo["IPEnabled"].ToString());
-                    string[] gateways = (string[])mo["DefaultIPGateway"];
-                    DefaultGateway = gateways[0];
-                    Console.WriteLine(DefaultGateway);
-                }
-                Console.WriteLine();
-                Console.WriteLine("DefaultGateway:\t{0}", DefaultGateway);
-                Network.DefaultGateway = DefaultGateway;
-            }
-            catch (NullReferenceException nrEx)
-            {
-                throw nrEx;
-            }
-        }
-
-        private bool InternetIsAvailable()
-        {
-            try
-            {
-                using (var client = new WebClient())
-                using (var stream = client.OpenRead("http://www.google.com"))
-                {
-                    return true;
-                }
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private void setSSID()
-        {
-            WlanClient wlan = new WlanClient();
-
-            Collection<String> connectedSsids = new Collection<string>();
-
-            foreach (WlanClient.WlanInterface wlanInterface in wlan.Interfaces)
-            {
-                Wlan.Dot11Ssid ssid = wlanInterface.CurrentConnection.wlanAssociationAttributes.dot11Ssid;
-                connectedSsids.Add(new String(Encoding.ASCII.GetChars(ssid.SSID, 0, (int)ssid.SSIDLength)));
-            }
-
-            foreach (var itme in connectedSsids)
-            {
-                Console.WriteLine(itme);
-            }
-        }
-
-        private bool NetworkIsAvailable()
-        {
-            return NetworkIsAvailable(0);
-        }
-
-        private bool NetworkIsAvailable(long minimumSpeed)
-        {
-            if (!NetworkInterface.GetIsNetworkAvailable())
-                return false;
-
-            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                // discard because of standard reasons
-                if ((ni.OperationalStatus != OperationalStatus.Up) ||
-                    (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback) ||
-                    (ni.NetworkInterfaceType == NetworkInterfaceType.Tunnel))
-                    continue;
-
-                // this allow to filter modems, serial, etc.
-                // I use 10000000 as a minimum speed for most cases
-                if (ni.Speed < minimumSpeed)
-                    continue;
-
-                // discard virtual cards (virtual box, virtual pc, etc.)
-                if ((ni.Description.IndexOf("virtual", StringComparison.OrdinalIgnoreCase) >= 0) ||
-                    (ni.Name.IndexOf("virtual", StringComparison.OrdinalIgnoreCase) >= 0))
-                    continue;
-
-                // discard "Microsoft Loopback Adapter", it will not show as NetworkInterfaceType.Loopback but as Ethernet Card.
-                if (ni.Description.Equals("Microsoft Loopback Adapter", StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                return true;
-            }
-            return false;
-        }
-
-        private void setSubnetMask()
-        {
-            try
-            {
-                string SubnetMask = null;
-                ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'TRUE'");
-
-                foreach (ManagementObject mo in mc.Get())
-                {
-                    string[] subnets = (string[])mo["IPSubnet"];
-                    SubnetMask = subnets[0];
-                }
-                Machine.MACAddress = SubnetMask;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        private void setMachineName()
-        {
-            try
-            {
-                Machine.HostName = Environment.MachineName;
-            } catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        private void setOSArchitecture()
-        {
-            try
-            {
-                string OSArchitecture = null;
-                ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
-
-                foreach (ManagementObject mo in mc.Get())
-                {
-                    OSArchitecture = (string)mo["OSArchitecture"];
-                }
-                Machine.OSArchitecture = OSArchitecture;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        private void setOperatingSystem()
-        {
-            try
-            {
-                string OperatingSystem = null;
-                ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
-
-                foreach (ManagementObject mo in mc.Get())
-                {
-                    OperatingSystem = (string)mo["Caption"];
-                }
-                Machine.OperatingSystem = OperatingSystem;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        private void setOSManufacturer()
-        {
-            try
-            {
-                string Manufacturer = null;
-                ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
-
-                foreach (ManagementObject mo in mc.Get())
-                {
-                    Manufacturer = (string)mo["Manufacturer"];
-                }
-                Machine.OSManufacturer = Manufacturer;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
         }
     }
 }
