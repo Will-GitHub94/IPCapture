@@ -21,13 +21,21 @@ namespace IPCapture
         public Machine()
         {
             this.IPv4 = getIPv4();
+            Console.WriteLine(this.IPv4);
             this.IPv6 = getIPv6();
+            Console.WriteLine(this.IPv6);
             this.MACAddress = getMACAddress();
+            Console.WriteLine(this.MACAddress);
             this.MachineName = getMachineName();
+            Console.WriteLine(this.MachineName);
             this.SubnetMask = getSubnetMask();
+            Console.WriteLine(this.SubnetMask);
             this.OperatingSystem = getOperatingSystem();
+            Console.WriteLine(this.OperatingSystem);
             this.OSArchitecture = getOSArchitecture();
+            Console.WriteLine(this.OSArchitecture);
             this.OSManufacturer = getOSManufacturer();
+            Console.WriteLine(this.OSManufacturer);
         }
 
         private string getIPv4()

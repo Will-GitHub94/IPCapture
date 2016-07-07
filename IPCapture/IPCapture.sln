@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IPCapture", "IPCapture\IPCapture.csproj", "{F1E8CB02-6CF0-4E6A-9D60-49D354DF471C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagedWifi", "..\..\..\..\Managed WiFi API\ManagedWifi.csproj", "{6AA425C9-EA6A-4B01-AAED-5FF122E8B663}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagedWifi", "..\..\..\..\Downloads\managedwifi-69709\ManagedWifi.csproj", "{6AA425C9-EA6A-4B01-AAED-5FF122E8B663}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

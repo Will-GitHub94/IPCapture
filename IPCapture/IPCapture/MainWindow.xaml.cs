@@ -33,6 +33,8 @@ namespace IPCapture
         public int RowCount = 0;
         public int ColumnCount = 0;
 
+        private bool allComponentsAdded = false;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -40,6 +42,7 @@ namespace IPCapture
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            Console.WriteLine("Loaded");
             Network = new Network();
             Machine = new Machine();
 
@@ -48,35 +51,35 @@ namespace IPCapture
 
             addRow("IPv4");
             addKeyLabel("IPv4", false);
-            addValueLabel("IPv4");
+            addValueLabel("IPv4", Machine.IPv4);
 
             addRow("IPv6");
             addKeyLabel("IPv6", false);
-            addValueLabel("IPv6");
+            addValueLabel("IPv6", Machine.IPv6);
 
             addRow("MAC_Address");
             addKeyLabel("MAC_Address", false);
-            addValueLabel("MAC_Address");
+            addValueLabel("MAC_Address", Machine.MACAddress);
 
             addRow("Subnet_Mask");
             addKeyLabel("Subnet_Mask", false);
-            addValueLabel("Subnet_Mask");
+            addValueLabel("Subnet_Mask", Machine.SubnetMask);
 
             addRow("Machine_Name");
             addKeyLabel("Machine_Name", false);
-            addValueLabel("Machine_Name");
+            addValueLabel("Machine_Name", Machine.MachineName);
 
             addRow("Operating_System");
             addKeyLabel("Operating_System", false);
-            addValueLabel("Operating_System");
+            addValueLabel("Operating_System", Machine.OperatingSystem);
 
             addRow("OS_Architecture");
             addKeyLabel("OS_Architecture", false);
-            addValueLabel("OS_Architecture");
+            addValueLabel("OS_Architecture", Machine.OSArchitecture);
 
             addRow("OS_Manufacturer");
             addKeyLabel("OS_Manufacturer", false);
-            addValueLabel("OS_Manufacturer");
+            addValueLabel("OS_Manufacturer", Machine.OSManufacturer);
 
             //----------------------------------------------------------
 
@@ -91,6 +94,22 @@ namespace IPCapture
 
             //ExternalIP_val.Content = Network.ExternalIP;
             //DefaultGateway_val.Content = Network.DefaultGateway;
+
+            //foreach (double height in windowHeights)
+            //{
+            //    Console.WriteLine(height);
+            //}
+
+
+            //this.MinWidth = this.ActualWidth;
+            //this.MinHeight = this.Height;
+            //this.MaxHeight = this.Height;
+            allComponentsAdded = true;
+        }
+
+        private void setValue()
+        {
+
         }
 
         private void addRow(string name)
@@ -102,11 +121,11 @@ namespace IPCapture
             GridMain.RowDefinitions.Add(newRow);
         }
 
-        private void addValueLabel(string value)
+        private void addValueLabel(string valueName, string value)
         {
             Label newLabel_val = new Label();
             newLabel_val.Content = "-";
-            newLabel_val.Name = (value + "_val");
+            newLabel_val.Name = (valueName + "_val");
 
             Grid.SetRow(newLabel_val, (GridMain.RowDefinitions.Count - 1));
             Grid.SetColumn(newLabel_val, 1);
@@ -119,15 +138,15 @@ namespace IPCapture
             GridMain.Children.Add(newLabel_val);
         }
 
-        private void addKeyLabel(string key, bool isHeader)
+        private void addKeyLabel(string keyName, bool isHeader)
         {
             Label newLabel_key = new Label();
-            newLabel_key.Name = (key + "_key");
+            newLabel_key.Name = (keyName + "_key");
 
-            if (key.Contains("_"))
-                key = key.Replace("_", " ");
+            if (keyName.Contains("_"))
+                keyName = keyName.Replace("_", " ");
 
-            newLabel_key.Content = key;
+            newLabel_key.Content = keyName;
 
             Grid.SetRow(newLabel_key, (GridMain.RowDefinitions.Count - 1));
             Grid.SetColumn(newLabel_key, 0);
@@ -157,6 +176,20 @@ namespace IPCapture
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             this.DragMove();
+        }
+
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (allComponentsAdded)
+            {
+                this.MinHeight = this.ActualHeight;
+                this.MaxHeight = this.ActualHeight;
+            }
+        }
+
+        private void Window_Initialized(object sender, EventArgs e)
+        {
+            Console.WriteLine("Initialized");
         }
     }
 }

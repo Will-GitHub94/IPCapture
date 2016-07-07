@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:IPCapture"
         mc:Ignorable="d"
         Title="IPCapture_GUI" Opacity="0.95" Background="Transparent" Foreground="White" FontFamily="Arial" FontSize="14" FontWeight="Bold" FontStretch="UltraExpanded" TextOptions.TextFormattingMode="Display" BorderThickness="0"
-        Loaded="Window_Loaded" WindowStartupLocation="CenterScreen" Height="Auto" Width="Auto" Cursor="Arrow" WindowStyle="None" AllowsTransparency="True" MouseLeftButtonDown="Window_MouseLeftButtonDown" Topmost="True" ResizeMode="CanResizeWithGrip" SizeToContent="WidthAndHeight">
+        Loaded="Window_Loaded" Initialized="Window_Initialized" SizeChanged="Window_SizeChanged" WindowStartupLocation="CenterScreen" Height="Auto" Width="Auto" Cursor="Arrow" WindowStyle="None" AllowsTransparency="True" MouseLeftButtonDown="Window_MouseLeftButtonDown" Topmost="True" ResizeMode="CanResizeWithGrip" SizeToContent="WidthAndHeight">
     <Window.OpacityMask>
         <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
             <GradientStop Color="Black"/>
@@ -18,12 +18,9 @@
             <Grid.RowDefinitions>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="Keys" Width="Auto"/>
-                <ColumnDefinition x:Name="Values" Width="Auto"/>
+                <ColumnDefinition x:Name="Keys"/>
+                <ColumnDefinition x:Name="Values"/>
             </Grid.ColumnDefinitions>
         </Grid>
-        <Border.Effect>
-            <DropShadowEffect Opacity="0.6" BlurRadius="1"/>
-        </Border.Effect>
     </Border>
 </Window>
