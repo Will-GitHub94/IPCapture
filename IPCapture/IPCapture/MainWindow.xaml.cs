@@ -19,7 +19,6 @@ using System.Management;
 using System.ComponentModel;
 using System.Net.NetworkInformation;
 using System.Collections.ObjectModel;
-using NativeWifi;
 
 namespace IPCapture
 {
@@ -44,9 +43,40 @@ namespace IPCapture
             Network = new Network();
             Machine = new Machine();
 
-            addMachineRow();
+            addRow("Machine");
+            addKeyLabel("Machine", true);
 
             addRow("IPv4");
+            addKeyLabel("IPv4", false);
+            addValueLabel("IPv4");
+
+            addRow("IPv6");
+            addKeyLabel("IPv6", false);
+            addValueLabel("IPv6");
+
+            addRow("MAC_Address");
+            addKeyLabel("MAC_Address", false);
+            addValueLabel("MAC_Address");
+
+            addRow("Subnet_Mask");
+            addKeyLabel("Subnet_Mask", false);
+            addValueLabel("Subnet_Mask");
+
+            addRow("Machine_Name");
+            addKeyLabel("Machine_Name", false);
+            addValueLabel("Machine_Name");
+
+            addRow("Operating_System");
+            addKeyLabel("Operating_System", false);
+            addValueLabel("Operating_System");
+
+            addRow("OS_Architecture");
+            addKeyLabel("OS_Architecture", false);
+            addValueLabel("OS_Architecture");
+
+            addRow("OS_Manufacturer");
+            addKeyLabel("OS_Manufacturer", false);
+            addValueLabel("OS_Manufacturer");
 
             //----------------------------------------------------------
 
@@ -63,55 +93,70 @@ namespace IPCapture
             //DefaultGateway_val.Content = Network.DefaultGateway;
         }
 
-        private void addRow(string valueKey)
+        private void addRow(string name)
         {
-            GridMain.RowDefinitions.Add(new RowDefinition());
-            GridMain.RowDefinitions[(GridMain.RowDefinitions.Count - 1)].Height = new GridLength(1, GridUnitType.Star);
+            RowDefinition newRow = new RowDefinition();
+            newRow.Height = new GridLength(1.0, GridUnitType.Auto);
+            newRow.Name = name;
 
-            addKeyValuePair(valueKey);
+            GridMain.RowDefinitions.Add(newRow);
         }
 
-        private void addKeyValuePair(string valueKey)
+        private void addValueLabel(string value)
         {
-            // add key
+            Label newLabel_val = new Label();
+            newLabel_val.Content = "-";
+            newLabel_val.Name = (value + "_val");
+
+            Grid.SetRow(newLabel_val, (GridMain.RowDefinitions.Count - 1));
+            Grid.SetColumn(newLabel_val, 1);
+
+            newLabel_val.FontWeight = FontWeights.Light;
+            newLabel_val.Foreground = Brushes.White;
+            newLabel_val.HorizontalAlignment = HorizontalAlignment.Right;
+            newLabel_val.VerticalAlignment = VerticalAlignment.Center;
+
+            GridMain.Children.Add(newLabel_val);
+        }
+
+        private void addKeyLabel(string key, bool isHeader)
+        {
             Label newLabel_key = new Label();
-            newLabel_key.Content = (valueKey + ":");
-            newLabel_key.Name = (valueKey + "_key");
+            newLabel_key.Name = (key + "_key");
+
+            if (key.Contains("_"))
+                key = key.Replace("_", " ");
+
+            newLabel_key.Content = key;
 
             Grid.SetRow(newLabel_key, (GridMain.RowDefinitions.Count - 1));
             Grid.SetColumn(newLabel_key, 0);
 
+            if (isHeader)
+            {
+                Grid.SetColumnSpan(newLabel_key, 2);
+                newLabel_key.FontWeight = FontWeights.Heavy;
+            } else
+                newLabel_key.FontWeight = FontWeights.Light;
 
-            // add val
-            Label newLabel_val = new Label();
-            newLabel_val.Content = "-";
-            newLabel_val.Name = (valueKey + "_val");
+            newLabel_key.Foreground = Brushes.White;
+            newLabel_key.HorizontalAlignment = HorizontalAlignment.Left;
+            newLabel_key.VerticalAlignment = VerticalAlignment.Center;
 
-            Grid.SetRow(newLabel_val, (GridMain.RowDefinitions.Count - 1));
-            Grid.SetColumn(newLabel_val, 1);
+            Thickness labelThick = new Thickness();
+            labelThick.Bottom = 0;
+            labelThick.Top = 0;
+            labelThick.Left = 5;
+            labelThick.Right = 5;
+
+            newLabel_key.Padding = labelThick;
+
+            GridMain.Children.Add(newLabel_key);
         }
 
-        private void addMachineRow()
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            // adds initial row for "Machine"
-            GridMain.RowDefinitions.Insert(0, new RowDefinition());
-
-            // sets percentage height
-            GridMain.RowDefinitions[0].Height = new GridLength(1, GridUnitType.Star);
-
-            //creates label "Machine"
-            Label Machine_label = new Label();
-            Machine_label.Content = "Machine";
-
-            // adds label to grid
-            Grid.SetRow(Machine_label, 0);
-            Grid.SetColumn(Machine_label, 0);
-            Grid.SetColumnSpan(Machine_label, 2);
-        }
-
-        private void addNetworkRow()
-        {
-
+            this.DragMove();
         }
     }
 }

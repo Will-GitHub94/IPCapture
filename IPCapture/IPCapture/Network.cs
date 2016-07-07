@@ -1,59 +1,76 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Management;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Net;
 using NativeWifi;
+using System.Net.NetworkInformation;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Net.NetworkInformation;
+using System.Text;
 
 namespace IPCapture
 {
     public class Network
     {
+        private const string WIFI = "WIFI";
+        private const string ETHERNET_ONLY = "ETHERNET ONLY";
+        private const string INACTIVE = "INACTIVE";
+        private const string ACTIVE = "ACTIVE";
+        private const string EMPTY = "-";
+
+        private const bool TRUE = true;
+        private const bool FALSE = false;
+
         public string DefaultGateway { get; set; }
         public string ExternalIP { get; set; }
         public string SSID { get; set; }
-        public string ConnectionType { get; set; }
-
-        public const string WIFI = "WiFi";
-        public const string ETHERNET = "Ethernet";
-        public const string NO_NETWORK_AVAILABLE = "No network available!";
+        public string NetworkConnection { get; set; }
+        public string NetworkConnectionType { get; set; }
+        public string InternetConnection { get; set; }
 
         public Network()
         {
-            this.ExternalIP = getExternalIP();
-            this.DefaultGateway = getDefaultGateway();
-
-            if (NetworkIsAvailable())
+            switch (NetworkIsAvailable())
             {
-                this.SSID = getSSID();
+                case TRUE:
+                    this.DefaultGateway = getDefaultGateway();
+                    this.SSID = getSSID();
+                    this.NetworkConnectionType = checkSSID();
+                    this.NetworkConnection = ACTIVE;
 
-                if (this.SSID != null)
-                    this.ConnectionType = WIFI;
-                else
-                    this.ConnectionType = ETHERNET;
+                    if (InternetIsAvailable())
+                    {
+                        this.ExternalIP = getExternalIP();
+                        this.InternetConnection = ACTIVE;
+                    }
+                    else
+                    {
+                        this.ExternalIP = EMPTY;
+                        this.InternetConnection = INACTIVE;
+                    }
+                    break;
+                case FALSE:
+                    this.ExternalIP = EMPTY;
+                    this.DefaultGateway = EMPTY;
+                    this.SSID = EMPTY;
+                    this.NetworkConnectionType = EMPTY;
+
+                    this.NetworkConnection = INACTIVE;
+                    this.InternetConnection = INACTIVE;
+                    break;
             }
-            else
-            {
-                this.SSID = null;
-                this.ConnectionType = NO_NETWORK_AVAILABLE;
-            }
+        }
+
+        private string checkSSID()
+        {
+            return this.SSID != EMPTY ? WIFI : ETHERNET_ONLY;
         }
 
         private string getExternalIP()
         {
             try
             {
-                string ExternalIP = null;
-                ExternalIP = (new System.Net.WebClient()).DownloadString("http://checkip.dyndns.org/");
-                ExternalIP = (new Regex(@"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"))
-                             .Matches(ExternalIP)[0].ToString();
-                return ExternalIP;
+                return new WebClient().DownloadString("https://api.ipify.org");
+
             }
             catch (Exception ex)
             {
@@ -65,13 +82,14 @@ namespace IPCapture
         {
             try
             {
-                string DefaultGateway = null;
+                string DefaultGateway = EMPTY;
                 ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'TRUE'");
 
                 foreach (ManagementObject mo in mc.Get())
                 {
                     string[] gateways = (string[])mo["DefaultIPGateway"];
                     DefaultGateway = gateways[0];
+                    break;
                 }
                 return DefaultGateway;
             }
@@ -114,7 +132,7 @@ namespace IPCapture
             }
             catch (Win32Exception)
             {
-                return null;
+                return EMPTY;
             }
             catch (Exception Ex)
             {

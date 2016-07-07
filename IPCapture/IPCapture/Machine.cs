@@ -16,6 +16,8 @@ namespace IPCapture
         public string OSArchitecture { get; set; }
         public string OSManufacturer { get; set; }
 
+        private const string EMPTY = "-";
+
         public Machine()
         {
             this.IPv4 = getIPv4();
@@ -33,7 +35,7 @@ namespace IPCapture
             try
             {
                 IPHostEntry IPhostEntry = Dns.GetHostEntry(Dns.GetHostName());
-                string IPv4 = null;
+                string IPv4 = EMPTY;
                 foreach (IPAddress ip in IPhostEntry.AddressList)
                 {
                     if (ip.AddressFamily == AddressFamily.InterNetwork)
@@ -53,7 +55,7 @@ namespace IPCapture
         {
             try
             {
-                string IPv6 = null;
+                string IPv6 = EMPTY;
                 IPHostEntry IPhostEntry = Dns.GetHostEntry(Dns.GetHostName());
 
                 foreach (IPAddress ip in IPhostEntry.AddressList)
@@ -75,13 +77,13 @@ namespace IPCapture
         {
             try
             {
-                string MACAddress = null;
+                string MACAddress = EMPTY;
                 ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'TRUE'");
 
                 foreach (ManagementObject mo in mc.Get())
                 {
                     MACAddress = (string)mo["MACAddress"];
-                    Console.WriteLine(MACAddress);
+                    break;
                 }
                 return MACAddress;
             }
@@ -95,7 +97,7 @@ namespace IPCapture
         {
             try
             {
-                string SubnetMask = null;
+                string SubnetMask = EMPTY;
                 ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'TRUE'");
 
                 foreach (ManagementObject mo in mc.Get())
@@ -127,7 +129,7 @@ namespace IPCapture
         {
             try
             {
-                string OSArchitecture = null;
+                string OSArchitecture = EMPTY;
                 ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
 
                 foreach (ManagementObject mo in mc.Get())
@@ -146,7 +148,7 @@ namespace IPCapture
         {
             try
             {
-                string OperatingSystem = null;
+                string OperatingSystem = EMPTY;
                 ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
 
                 foreach (ManagementObject mo in mc.Get())
@@ -165,7 +167,7 @@ namespace IPCapture
         {
             try
             {
-                string Manufacturer = null;
+                string Manufacturer = EMPTY;
                 ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
 
                 foreach (ManagementObject mo in mc.Get())
