@@ -32,7 +32,7 @@ namespace IPCapture
             switch (NetworkIsAvailable())
             {
                 case TRUE:
-                    //this.DefaultGateway = getDefaultGateway();
+                    this.DefaultGateway = getDefaultGateway();
                     this.SSID = getSSID();
                     this.NetworkConnectionType = checkSSID();
                     this.NetworkConnection = ACTIVE;
@@ -78,26 +78,26 @@ namespace IPCapture
             }
         }
 
-        //private string getDefaultGateway()
-        //{
-        //    try
-        //    {
-        //        string DefaultGateway = EMPTY;
-        //        ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'TRUE'");
+        private string getDefaultGateway()
+        {
+            try
+            {
+                string DefaultGateway = EMPTY;
+                ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'TRUE'");
 
-        //        foreach (ManagementObject mo in mc.Get())
-        //        {
-        //            string[] gateways = (string[])mo["DefaultIPGateway"];
-        //            DefaultGateway = gateways[0];
-        //            break;
-        //        }
-        //        return DefaultGateway;
-        //    }
-        //    catch (Exception Ex)
-        //    {
-        //        throw Ex;
-        //    }
-        //}
+                foreach (ManagementObject mo in mc.Get())
+                {
+                    string[] gateways = (string[])mo["DefaultIPGateway"];
+                    DefaultGateway = gateways[0];
+                    break;
+                }
+                return DefaultGateway;
+            }
+            catch (Exception Ex)
+            {
+                throw Ex;
+            }
+        }
 
         private bool InternetIsAvailable()
         {

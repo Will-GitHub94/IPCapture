@@ -19,6 +19,7 @@ using System.Management;
 using System.ComponentModel;
 using System.Net.NetworkInformation;
 using System.Collections.ObjectModel;
+using System.Reflection;
 
 namespace IPCapture
 {
@@ -30,87 +31,73 @@ namespace IPCapture
         private static Machine Machine;
         private static Network Network;
 
-        public int RowCount = 0;
-        public int ColumnCount = 0;
-
-        private bool allComponentsAdded = false;
+        private const string EMPTY = "-";
+        private double MinWindowWidth = 0.0;
 
         public MainWindow()
         {
+            Network = new Network();
+            Machine = new Machine();
+
             InitializeComponent();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("Loaded");
-            Network = new Network();
-            Machine = new Machine();
+            //------------------------------------------------------
+            //---------------------MACHINE--------------------------
+            //------------------------------------------------------
 
             addRow("Machine");
             addKeyLabel("Machine", true);
 
-            addRow("IPv4");
-            addKeyLabel("IPv4", false);
-            addValueLabel("IPv4", Machine.IPv4);
+            addKeyValuePairRow("Machine", "IPv4");
+            addKeyValuePairRow("Machine", "IPv6");
+            addKeyValuePairRow("Machine", "MAC_Address");
+            addKeyValuePairRow("Machine", "Subnet_Mask");
+            addKeyValuePairRow("Machine", "Machine_Name");
+            addKeyValuePairRow("Machine", "Operating_System");
+            addKeyValuePairRow("Machine", "OS_Architecture");
+            addKeyValuePairRow("Machine", "OS_Manufacturer");
 
-            addRow("IPv6");
-            addKeyLabel("IPv6", false);
-            addValueLabel("IPv6", Machine.IPv6);
+            //------------------------------------------------------
+            //---------------------NETWORK--------------------------
+            //------------------------------------------------------
 
-            addRow("MAC_Address");
-            addKeyLabel("MAC_Address", false);
-            addValueLabel("MAC_Address", Machine.MACAddress);
+            addRow("Network");
+            addKeyLabel("Network", true);
 
-            addRow("Subnet_Mask");
-            addKeyLabel("Subnet_Mask", false);
-            addValueLabel("Subnet_Mask", Machine.SubnetMask);
-
-            addRow("Machine_Name");
-            addKeyLabel("Machine_Name", false);
-            addValueLabel("Machine_Name", Machine.MachineName);
-
-            addRow("Operating_System");
-            addKeyLabel("Operating_System", false);
-            addValueLabel("Operating_System", Machine.OperatingSystem);
-
-            addRow("OS_Architecture");
-            addKeyLabel("OS_Architecture", false);
-            addValueLabel("OS_Architecture", Machine.OSArchitecture);
-
-            addRow("OS_Manufacturer");
-            addKeyLabel("OS_Manufacturer", false);
-            addValueLabel("OS_Manufacturer", Machine.OSManufacturer);
-
-            //----------------------------------------------------------
-
-            //IPv4_val.Content = Machine.IPv4;
-            //IPv6_val.Content = Machine.IPv6;
-            //MAC_val.Content = Machine.MACAddress;
-            //Subnet_val.Content = Machine.SubnetMask;
-            //HostName_val.Content = Machine.HostName;
-            //OperatingSystem_val.Content = Machine.OperatingSystem;
-            //OSArchitecture_val.Content = Machine.OSArchitecture;
-            //OSManufacturer_val.Content = Machine.OSManufacturer;
-
-            //ExternalIP_val.Content = Network.ExternalIP;
-            //DefaultGateway_val.Content = Network.DefaultGateway;
-
-            //foreach (double height in windowHeights)
-            //{
-            //    Console.WriteLine(height);
-            //}
-
-
-            //this.MinWidth = this.ActualWidth;
-            //this.MinHeight = this.Height;
-            //this.MaxHeight = this.Height;
-            allComponentsAdded = true;
+            addKeyValuePairRow("Network", "Network_Connection");
+            addKeyValuePairRow("Network", "Network_Connection_Type");
+            addKeyValuePairRow("Network", "SSID");
+            addKeyValuePairRow("Network", "Default_Gateway");
+            addKeyValuePairRow("Network", "Internet_Connection");
+            addKeyValuePairRow("Network", "External_IP");
         }
 
-        private void setValue()
+        private void addKeyValuePairRow(string whichClass, string item)
         {
+            addRow(item);
+            addKeyLabel(item, false);
+            addValueLabel(item);
 
+            if (item.Contains("_"))
+                item = item.Replace("_", "");
+
+            if (whichClass == "Machine")
+                setValue(Machine.GetType().GetProperty(item).GetValue(Machine, null).ToString());
+            else
+                setValue(Network.GetType().GetProperty(item).GetValue(Network, null).ToString());
         }
+
+        private void setValue(string value)
+        {
+            Label valueLabel = GridMain.Children
+                .Cast<Label>()
+                .First(e => Grid.GetRow(e) == (GridMain.RowDefinitions.Count - 1) && Grid.GetColumn(e) == 1);
+
+            valueLabel.Content = value;
+         }
 
         private void addRow(string name)
         {
@@ -121,19 +108,28 @@ namespace IPCapture
             GridMain.RowDefinitions.Add(newRow);
         }
 
-        private void addValueLabel(string valueName, string value)
+        private void addValueLabel(string valueName)
         {
             Label newLabel_val = new Label();
-            newLabel_val.Content = "-";
+            newLabel_val.Content = EMPTY;
             newLabel_val.Name = (valueName + "_val");
 
             Grid.SetRow(newLabel_val, (GridMain.RowDefinitions.Count - 1));
             Grid.SetColumn(newLabel_val, 1);
 
-            newLabel_val.FontWeight = FontWeights.Light;
+            newLabel_val.FontWeight = FontWeights.UltraLight;
+            newLabel_val.FontSize = 12;
             newLabel_val.Foreground = Brushes.White;
             newLabel_val.HorizontalAlignment = HorizontalAlignment.Right;
             newLabel_val.VerticalAlignment = VerticalAlignment.Center;
+
+            Thickness labelThick = new Thickness();
+            labelThick.Bottom = 1;
+            labelThick.Top = 1;
+            labelThick.Left = 0;
+            labelThick.Right = 5;
+
+            newLabel_val.Padding = labelThick;
 
             GridMain.Children.Add(newLabel_val);
         }
@@ -151,22 +147,31 @@ namespace IPCapture
             Grid.SetRow(newLabel_key, (GridMain.RowDefinitions.Count - 1));
             Grid.SetColumn(newLabel_key, 0);
 
+            Thickness labelThick = new Thickness();
             if (isHeader)
             {
                 Grid.SetColumnSpan(newLabel_key, 2);
-                newLabel_key.FontWeight = FontWeights.Heavy;
+                newLabel_key.FontWeight = FontWeights.Bold;
+                newLabel_key.FontSize = 13;
+
+                labelThick.Bottom = 3;
+                labelThick.Top = 3;
+                
             } else
-                newLabel_key.FontWeight = FontWeights.Light;
+            {
+                newLabel_key.FontWeight = FontWeights.UltraLight;
+                newLabel_key.FontSize = 12;
+
+                labelThick.Bottom = 1;
+                labelThick.Top = 1;
+            }
+
+            labelThick.Left = 5;
+            labelThick.Right = 0;
 
             newLabel_key.Foreground = Brushes.White;
             newLabel_key.HorizontalAlignment = HorizontalAlignment.Left;
             newLabel_key.VerticalAlignment = VerticalAlignment.Center;
-
-            Thickness labelThick = new Thickness();
-            labelThick.Bottom = 0;
-            labelThick.Top = 0;
-            labelThick.Left = 5;
-            labelThick.Right = 5;
 
             newLabel_key.Padding = labelThick;
 
@@ -178,18 +183,11 @@ namespace IPCapture
             this.DragMove();
         }
 
-        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void Window_Activated(object sender, EventArgs e)
         {
-            if (allComponentsAdded)
-            {
-                this.MinHeight = this.ActualHeight;
-                this.MaxHeight = this.ActualHeight;
-            }
-        }
-
-        private void Window_Initialized(object sender, EventArgs e)
-        {
-            Console.WriteLine("Initialized");
+            this.MinWidth = this.ActualWidth;
+            this.MinHeight = this.ActualHeight;
+            this.MaxHeight = this.ActualHeight;
         }
     }
 }

@@ -104,7 +104,7 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\Downloads\managedwifi-69709\ManagedWifi.csproj">
+    <ProjectReference Include="ManagedWifi.csproj">
       <Project>{6aa425c9-ea6a-4b01-aaed-5ff122e8b663}</Project>
       <Name>ManagedWifi</Name>
     </ProjectReference>
