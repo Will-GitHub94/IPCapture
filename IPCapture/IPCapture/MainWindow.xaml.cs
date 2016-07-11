@@ -32,7 +32,27 @@ namespace IPCapture
         private static Network Network;
 
         private const string EMPTY = "-";
-        private double MinWindowWidth = 0.0;
+
+        private const string NETWORK = "Network";
+        private const string MACHINE = "Machine";
+
+        // Network member variables
+        private const string DEFAULT_GATEWAY = "DefaultGateway";
+        private const string EXTERNAL_IP = "ExternalIP";
+        private const string SSID = "SSID";
+        private const string NETWORK_CONNECTION = "NetworkConnection";
+        private const string NETWORK_CONNECTION_TYPE = "NetworkConnectionType";
+        private const string INTERNET_CONNECTION = "InternetConnection";
+
+        // Machine member variables
+        private const string IPV4 = "IPv4";
+        private const string IPV6 = "IPv6";
+        private const string MAC_ADDRESS = "MACAddress";
+        private const string SUBNET_MASK = "SubnetMask";
+        private const string MACHINE_NAME = "MachineName";
+        private const string OPERATING_SYSTEM = "OperatingSystem";
+        private const string OS_ARCHITECTURE = "OSArchitecture";
+        private const string OS_MANUFACTURER = "OSManufacturer";
 
         public MainWindow()
         {
@@ -48,31 +68,31 @@ namespace IPCapture
             //---------------------MACHINE--------------------------
             //------------------------------------------------------
 
-            addRow("Machine");
-            addKeyLabel("Machine", true);
+            addRow(MACHINE);
+            addKeyLabel(MACHINE, true);
 
-            addKeyValuePairRow("Machine", "IPv4");
-            addKeyValuePairRow("Machine", "IPv6");
-            addKeyValuePairRow("Machine", "MAC_Address");
-            addKeyValuePairRow("Machine", "Subnet_Mask");
-            addKeyValuePairRow("Machine", "Machine_Name");
-            addKeyValuePairRow("Machine", "Operating_System");
-            addKeyValuePairRow("Machine", "OS_Architecture");
-            addKeyValuePairRow("Machine", "OS_Manufacturer");
+            addKeyValuePairRow(MACHINE, IPV4);
+            addKeyValuePairRow(MACHINE, IPV6);
+            addKeyValuePairRow(MACHINE, MAC_ADDRESS);
+            addKeyValuePairRow(MACHINE, SUBNET_MASK);
+            addKeyValuePairRow(MACHINE, MACHINE_NAME);
+            addKeyValuePairRow(MACHINE, OPERATING_SYSTEM);
+            addKeyValuePairRow(MACHINE, OS_ARCHITECTURE);
+            addKeyValuePairRow(MACHINE, OS_MANUFACTURER);
 
             //------------------------------------------------------
             //---------------------NETWORK--------------------------
             //------------------------------------------------------
 
-            addRow("Network");
-            addKeyLabel("Network", true);
+            addRow(NETWORK);
+            addKeyLabel(NETWORK, true);
 
-            addKeyValuePairRow("Network", "Network_Connection");
-            addKeyValuePairRow("Network", "Network_Connection_Type");
-            addKeyValuePairRow("Network", "SSID");
-            addKeyValuePairRow("Network", "Default_Gateway");
-            addKeyValuePairRow("Network", "Internet_Connection");
-            addKeyValuePairRow("Network", "External_IP");
+            addKeyValuePairRow(NETWORK, NETWORK_CONNECTION);
+            addKeyValuePairRow(NETWORK, NETWORK_CONNECTION_TYPE);
+            addKeyValuePairRow(NETWORK, SSID);
+            addKeyValuePairRow(NETWORK, DEFAULT_GATEWAY);
+            addKeyValuePairRow(NETWORK, INTERNET_CONNECTION);
+            addKeyValuePairRow(NETWORK, EXTERNAL_IP);
         }
 
         private void addKeyValuePairRow(string whichClass, string item)
@@ -81,23 +101,31 @@ namespace IPCapture
             addKeyLabel(item, false);
             addValueLabel(item);
 
-            if (item.Contains("_"))
-                item = item.Replace("_", "");
-
-            if (whichClass == "Machine")
-                setValue(Machine.GetType().GetProperty(item).GetValue(Machine, null).ToString());
+            if (whichClass == MACHINE)
+                setValueByLastAdded(Machine.GetType().GetProperty(item).GetValue(Machine, null).ToString());
             else
-                setValue(Network.GetType().GetProperty(item).GetValue(Network, null).ToString());
+                setValueByLastAdded(Network.GetType().GetProperty(item).GetValue(Network, null).ToString());
         }
 
-        private void setValue(string value)
+        private void setValueByLastAdded(string value)
         {
             Label valueLabel = GridMain.Children
                 .Cast<Label>()
                 .First(e => Grid.GetRow(e) == (GridMain.RowDefinitions.Count - 1) && Grid.GetColumn(e) == 1);
 
             valueLabel.Content = value;
-         }
+        }
+
+        private void setValueByLabelName(string propertyName, string propertyVal)
+        {
+            foreach (Label label in GridMain.Children)
+            {
+                if (label.Name == propertyName)
+                {
+                    label.Content = propertyVal;
+                }
+            }
+        }
 
         private void addRow(string name)
         {
@@ -188,6 +216,33 @@ namespace IPCapture
             this.MinWidth = this.ActualWidth;
             this.MinHeight = this.ActualHeight;
             this.MaxHeight = this.ActualHeight;
+        }
+
+        public void ValueChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Console.WriteLine("ValueChanged");
+            Console.WriteLine(e);
+            switch (e.PropertyName)
+            {
+                case DEFAULT_GATEWAY:
+                    setValueByLabelName(DEFAULT_GATEWAY, Network.DefaultGateway);
+                    break;
+                case EXTERNAL_IP:
+                    setValueByLabelName(EXTERNAL_IP, Network.ExternalIP);
+                    break;
+                case SSID:
+                    setValueByLabelName(SSID, Network.SSID);
+                    break;
+                case NETWORK_CONNECTION:
+                    setValueByLabelName(NETWORK_CONNECTION, Network.NetworkConnection);
+                    break;
+                case NETWORK_CONNECTION_TYPE:
+                    setValueByLabelName(NETWORK_CONNECTION_TYPE, Network.NetworkConnectionType);
+                    break;
+                case INTERNET_CONNECTION:
+                    setValueByLabelName(INTERNET_CONNECTION, Network.InternetConnection);
+                    break;
+            }
         }
     }
 }

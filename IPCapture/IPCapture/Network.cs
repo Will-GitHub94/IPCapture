@@ -9,7 +9,13 @@ using System.Text;
 
 namespace IPCapture
 {
-    public class Network
+    /// <summary>
+	/// Stores all the information required of the network that the user is currently connected to.
+	/// </summary>
+	/// <remarks>
+	/// This class is instantiated when the app is first run (before the GUI is initialized)
+	/// </remarks>
+    public class Network : INotifyPropertyChanged
     {
         private const string WIFI = "WIFI";
         private const string ETHERNET_ONLY = "ETHERNET ONLY";
@@ -20,49 +26,77 @@ namespace IPCapture
         private const bool TRUE = true;
         private const bool FALSE = false;
 
-        public string DefaultGateway { get; set; }
-        public string ExternalIP { get; set; }
-        public string SSID { get; set; }
-        public string NetworkConnection { get; set; }
-        public string NetworkConnectionType { get; set; }
-        public string InternetConnection { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+        private object _lock = new object();
+
+        private string _DefaultGateway = EMPTY;
+        private string _ExternalIP = EMPTY;
+        private string _SSID = EMPTY;
+        private string _NetworkConnection = EMPTY;
+        private string _NetworkConnectionType = EMPTY;
+        private string _InternetConnection = EMPTY;
 
         public Network()
         {
-            switch (NetworkIsAvailable())
+            // initial check of network.
+            CheckNetworkAvailability();
+
+            NetworkChange.NetworkAddressChanged += NetworkAddressChanged;
+        }
+
+        private void NetworkIsActive()
+        {
+            this.DefaultGateway = getDefaultGateway();
+            this.SSID = getSSID();
+            this.NetworkConnectionType = checkSSID();
+            this.NetworkConnection = ACTIVE;
+
+            if (IsInternetAvailable())
+            {
+                this.ExternalIP = getExternalIP();
+                this.InternetConnection = ACTIVE;
+            }
+            else
+            {
+                this.ExternalIP = EMPTY;
+                this.InternetConnection = INACTIVE;
+            }
+        }
+
+        private void NetworkIsInactive()
+        {
+            this.ExternalIP = EMPTY;
+            this.DefaultGateway = EMPTY;
+            this.SSID = EMPTY;
+            this.NetworkConnectionType = EMPTY;
+
+            this.NetworkConnection = INACTIVE;
+            this.InternetConnection = INACTIVE;
+        }
+
+        private void CheckNetworkAvailability()
+        {
+            switch (IsNetworkAvailable(0))
             {
                 case TRUE:
-                    this.DefaultGateway = getDefaultGateway();
-                    this.SSID = getSSID();
-                    this.NetworkConnectionType = checkSSID();
-                    this.NetworkConnection = ACTIVE;
-
-                    if (InternetIsAvailable())
-                    {
-                        this.ExternalIP = getExternalIP();
-                        this.InternetConnection = ACTIVE;
-                    }
-                    else
-                    {
-                        this.ExternalIP = EMPTY;
-                        this.InternetConnection = INACTIVE;
-                    }
+                    NetworkIsActive();
                     break;
                 case FALSE:
-                    this.ExternalIP = EMPTY;
-                    this.DefaultGateway = EMPTY;
-                    this.SSID = EMPTY;
-                    this.NetworkConnectionType = EMPTY;
-
-                    this.NetworkConnection = INACTIVE;
-                    this.InternetConnection = INACTIVE;
+                    NetworkIsInactive();
                     break;
             }
         }
 
+        /// <summary>
+        /// These are the methods that get the appropriate values via different resources
+        /// </summary>
+        /// <returns>
+        /// Adequate values. Either a FOUND value if found (i.e. DefaultGateway)...
+        /// ...or EMPTY, which will infer the required value cannot be found or, in this case, the device may not be connected to a Network
+        /// </returns>
         private string checkSSID()
         {
-            return this.SSID != EMPTY ? WIFI : ETHERNET_ONLY;
+            return this._SSID != EMPTY ? WIFI : ETHERNET_ONLY;
         }
 
         private string getExternalIP()
@@ -70,7 +104,6 @@ namespace IPCapture
             try
             {
                 return new WebClient().DownloadString("https://api.ipify.org");
-
             }
             catch (Exception ex)
             {
@@ -99,7 +132,7 @@ namespace IPCapture
             }
         }
 
-        private bool InternetIsAvailable()
+        private bool IsInternetAvailable()
         {
             try
             {
@@ -140,12 +173,7 @@ namespace IPCapture
             }
         }
 
-        private bool NetworkIsAvailable()
-        {
-            return NetworkIsAvailable(0);
-        }
-
-        private bool NetworkIsAvailable(long minimumSpeed)
+        private bool IsNetworkAvailable(long minimumSpeed)
         {
             if (!NetworkInterface.GetIsNetworkAvailable())
                 return false;
@@ -175,6 +203,69 @@ namespace IPCapture
                 return true;
             }
             return false;
+        }
+
+        // Called if the device detects a change in the network status
+        private void NetworkAddressChanged(object sender, EventArgs e)
+        {
+            CheckNetworkAvailability();
+        }
+
+        /// <summary>
+        /// Getter/setter methods that will (hopfully) update the property when changed
+        /// </summary>
+        public string DefaultGateway
+        {
+            get { return this._DefaultGateway; }
+            set { setter(value, "DefaultGateway", ref this._DefaultGateway); }
+        }
+
+        public string ExternalIP
+        {
+            get { return this._ExternalIP; }
+            set { setter(value, "ExternalIP", ref this._ExternalIP); }
+        }
+
+        public string SSID
+        {
+            get { return this._SSID; }
+            set { setter(value, "SSID", ref this._SSID); }
+        }
+
+        public string NetworkConnection
+        {
+            get { return this._NetworkConnection; }
+            set { setter(value, "NetworkConnection", ref this._NetworkConnection); }
+        }
+
+        public string NetworkConnectionType
+        {
+            get { return this._NetworkConnectionType; }
+            set { setter(value, "NetworkConnectionType", ref this._NetworkConnectionType); }
+        }
+
+        public string InternetConnection
+        {
+            get { return this._InternetConnection; }
+            set { setter(value, "InternetConnection", ref this._InternetConnection); }
+        }
+
+        private void setter(string val, string propertyName, ref string propertyVal)
+        {
+            lock (_lock)
+            {
+                if (val != propertyVal)
+                {
+                    propertyVal = val;
+                    NotifyPropertyChanged(propertyName);
+                }
+            }
+        }
+
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
