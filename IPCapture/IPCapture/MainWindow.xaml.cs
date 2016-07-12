@@ -21,7 +21,7 @@ using System.Net.NetworkInformation;
 using System.Collections.ObjectModel;
 using System.Reflection;
 
-namespace IPCapture
+namespace IPCapture 
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
