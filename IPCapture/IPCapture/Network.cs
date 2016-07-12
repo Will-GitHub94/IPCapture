@@ -147,7 +147,6 @@ namespace IPCapture
         // Called if the device detects a change in the network status
         private void NetworkAddressChanged(object sender, EventArgs e)
         {
-            Console.WriteLine("NetworkAddressChanged");
             this.CheckNetworkAvailability();
         }
     }

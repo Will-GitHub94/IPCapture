@@ -123,11 +123,17 @@ namespace IPCapture
 
         private void setValueByLabelName(string propertyName, string propertyVal)
         {
-            foreach (Label label in GridMain.Children)
+            this.Dispatcher.Invoke((Action)(() =>
             {
-                if (label.Name == propertyName)
-                    label.Content = propertyVal;
-            }
+                foreach (Label label in GridMain.Children.Cast<Label>())
+                {
+                    if (label.Name == (propertyName + "_val"))
+                    {
+                        label.Content = propertyVal;
+                        break;
+                    }
+                }
+            }));
         }
 
         private void addRow(string name)
@@ -222,8 +228,6 @@ namespace IPCapture
 
         public void NetworkPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Console.WriteLine("NetworkPropertyChanged");
-            Console.WriteLine(e);
             switch (e.PropertyName)
             {
                 case DEFAULT_GATEWAY:
@@ -247,10 +251,37 @@ namespace IPCapture
             }
         }
 
-        private void MachinePropertyChanged(object sender, PropertyChangedEventArgs e)
+        public void MachinePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Console.WriteLine("MachinePropertyChanged");
-            Console.WriteLine(e);
+            // Commented cases will never change while app is running
+
+            switch (e.PropertyName)
+            {
+                case IPV4:
+                    setValueByLabelName(IPV4, Machine.IPv4);
+                    break;
+                case IPV6:
+                    setValueByLabelName(IPV6, Machine.IPv6);
+                    break;
+                case MAC_ADDRESS:
+                    setValueByLabelName(MAC_ADDRESS, Machine.MACAddress);
+                    break;
+                case SUBNET_MASK:
+                    setValueByLabelName(SUBNET_MASK, Machine.SubnetMask);
+                    break;
+                //case MACHINE_NAME:
+                //    setValueByLabelName(MACHINE_NAME, Machine.MachineName);
+                //    break;
+                //case OPERATING_SYSTEM:
+                //    setValueByLabelName(OPERATING_SYSTEM, Machine.OperatingSystem);
+                //    break;
+                //case OS_ARCHITECTURE:
+                //    setValueByLabelName(OS_ARCHITECTURE, Machine.OSArchitecture);
+                //    break;
+                //case OS_MANUFACTURER:
+                //    setValueByLabelName(OS_MANUFACTURER, Machine.OSManufacturer);
+                //    break;
+            }
         }
     }
 }

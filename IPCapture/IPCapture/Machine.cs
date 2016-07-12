@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 
 namespace IPCapture
 {
@@ -99,15 +100,29 @@ namespace IPCapture
                 if (val != propertyVal)
                 {
                     propertyVal = val;
-                    NotifyPropertyChanged(propertyName);
+                    OnPropertyChanged(propertyName);
                 }
             }
         }
 
-        private void NotifyPropertyChanged(string propertyName)
+        public void OnPropertyChanged(string propertyName)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        // Called if the device detects a change in the network status
+        private void NetworkAddressChanged(object sender, EventArgs e)
+        {
+            // Commented lines will not be changed on NetworkAddressChanged
+
+            this.IPv4 = MachineActivities.getIPv4();
+            this.IPv6 = MachineActivities.getIPv6();
+            this.MACAddress = MachineActivities.getMACAddress();
+            this.SubnetMask = MachineActivities.getSubnetMask();
+            // this.MachineName = MachineActivities.getMachineName();
+            // this.OperatingSystem = MachineActivities.getOperatingSystem();
+            // this.OSArchitecture = MachineActivities.getOSArchitecture();
+            // this.OSManufacturer = MachineActivities.getOSManufacturer();
         }
     }
 }
