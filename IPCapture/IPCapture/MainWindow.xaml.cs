@@ -28,10 +28,12 @@ namespace IPCapture
     /// </summary>
     public partial class MainWindow : Window
     {
-        private static Machine Machine;
-        private static Network Network;
+        private static Machine Machine { get; set; }
+        private static Network Network { get; set; }
 
         private const string EMPTY = "-";
+        private const bool TRUE = true;
+        private const bool FALSE = false;
 
         private const string NETWORK = "Network";
         private const string MACHINE = "Machine";
@@ -58,6 +60,9 @@ namespace IPCapture
         {
             Network = new Network();
             Machine = new Machine();
+
+            Network.PropertyChanged += new PropertyChangedEventHandler(this.NetworkPropertyChanged);
+            Machine.PropertyChanged += new PropertyChangedEventHandler(this.MachinePropertyChanged);
 
             InitializeComponent();
         }
@@ -121,9 +126,7 @@ namespace IPCapture
             foreach (Label label in GridMain.Children)
             {
                 if (label.Name == propertyName)
-                {
                     label.Content = propertyVal;
-                }
             }
         }
 
@@ -167,31 +170,30 @@ namespace IPCapture
             Label newLabel_key = new Label();
             newLabel_key.Name = (keyName + "_key");
 
-            if (keyName.Contains("_"))
-                keyName = keyName.Replace("_", " ");
-
             newLabel_key.Content = keyName;
 
             Grid.SetRow(newLabel_key, (GridMain.RowDefinitions.Count - 1));
             Grid.SetColumn(newLabel_key, 0);
 
             Thickness labelThick = new Thickness();
-            if (isHeader)
-            {
-                Grid.SetColumnSpan(newLabel_key, 2);
-                newLabel_key.FontWeight = FontWeights.Bold;
-                newLabel_key.FontSize = 13;
 
-                labelThick.Bottom = 3;
-                labelThick.Top = 3;
-                
-            } else
+            switch (isHeader)
             {
-                newLabel_key.FontWeight = FontWeights.UltraLight;
-                newLabel_key.FontSize = 12;
+                case TRUE:
+                    Grid.SetColumnSpan(newLabel_key, 2);
+                    newLabel_key.FontWeight = FontWeights.Bold;
+                    newLabel_key.FontSize = 13;
 
-                labelThick.Bottom = 1;
-                labelThick.Top = 1;
+                    labelThick.Bottom = 3;
+                    labelThick.Top = 3;
+                    break;
+                case FALSE:
+                    newLabel_key.FontWeight = FontWeights.UltraLight;
+                    newLabel_key.FontSize = 12;
+
+                    labelThick.Bottom = 1;
+                    labelThick.Top = 1;
+                    break;
             }
 
             labelThick.Left = 5;
@@ -218,9 +220,9 @@ namespace IPCapture
             this.MaxHeight = this.ActualHeight;
         }
 
-        public void ValueChanged(object sender, PropertyChangedEventArgs e)
+        public void NetworkPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Console.WriteLine("ValueChanged");
+            Console.WriteLine("NetworkPropertyChanged");
             Console.WriteLine(e);
             switch (e.PropertyName)
             {
@@ -243,6 +245,12 @@ namespace IPCapture
                     setValueByLabelName(INTERNET_CONNECTION, Network.InternetConnection);
                     break;
             }
+        }
+
+        private void MachinePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Console.WriteLine("MachinePropertyChanged");
+            Console.WriteLine(e);
         }
     }
 }

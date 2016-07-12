@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Management;
-using System.Net;
-using NativeWifi;
-using System.Net.NetworkInformation;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Text;
+using System.Net.NetworkInformation;
 
 namespace IPCapture
 {
@@ -17,18 +12,17 @@ namespace IPCapture
 	/// </remarks>
     public class Network : INotifyPropertyChanged
     {
-        private const string WIFI = "WIFI";
-        private const string ETHERNET_ONLY = "ETHERNET ONLY";
-        private const string INACTIVE = "INACTIVE";
-        private const string ACTIVE = "ACTIVE";
-        private const string EMPTY = "-";
+        // Classes
+        private static NetworkActivities NetworkActivities;
 
+        // Constants
+        private const string EMPTY = "-";
         private const bool TRUE = true;
         private const bool FALSE = false;
+        private const string INACTIVE = "INACTIVE";
+        private const string ACTIVE = "ACTIVE";
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        private object _lock = new object();
-
+        // Member variables
         private string _DefaultGateway = EMPTY;
         private string _ExternalIP = EMPTY;
         private string _SSID = EMPTY;
@@ -36,30 +30,50 @@ namespace IPCapture
         private string _NetworkConnectionType = EMPTY;
         private string _InternetConnection = EMPTY;
 
+        // Events
+        public event PropertyChangedEventHandler PropertyChanged;
+        private object _lock = new object();
+
         public Network()
         {
+            NetworkActivities = new NetworkActivities();
+
             // initial check of network.
-            CheckNetworkAvailability();
+            this.CheckNetworkAvailability();
 
             NetworkChange.NetworkAddressChanged += NetworkAddressChanged;
         }
 
+        private void CheckNetworkAvailability()
+        {
+            switch (NetworkActivities.IsNetworkAvailable(0))
+            {
+                case TRUE:
+                    NetworkIsActive();
+                    break;
+                case FALSE:
+                    NetworkIsInactive();
+                    break;
+            }
+        }
+
         private void NetworkIsActive()
         {
-            this.DefaultGateway = getDefaultGateway();
-            this.SSID = getSSID();
-            this.NetworkConnectionType = checkSSID();
+            this.DefaultGateway = NetworkActivities.getDefaultGateway();
+            this.SSID = NetworkActivities.getSSID();
+            this.NetworkConnectionType = NetworkActivities.checkSSID(this.SSID);
             this.NetworkConnection = ACTIVE;
 
-            if (IsInternetAvailable())
+            switch (NetworkActivities.IsInternetAvailable())
             {
-                this.ExternalIP = getExternalIP();
-                this.InternetConnection = ACTIVE;
-            }
-            else
-            {
-                this.ExternalIP = EMPTY;
-                this.InternetConnection = INACTIVE;
+                case TRUE:
+                    this.ExternalIP = NetworkActivities.getExternalIP();
+                    this.InternetConnection = ACTIVE;
+                    break;
+                case FALSE:
+                    this.ExternalIP = EMPTY;
+                    this.InternetConnection = INACTIVE;
+                    break;
             }
         }
 
@@ -72,143 +86,6 @@ namespace IPCapture
 
             this.NetworkConnection = INACTIVE;
             this.InternetConnection = INACTIVE;
-        }
-
-        private void CheckNetworkAvailability()
-        {
-            switch (IsNetworkAvailable(0))
-            {
-                case TRUE:
-                    NetworkIsActive();
-                    break;
-                case FALSE:
-                    NetworkIsInactive();
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// These are the methods that get the appropriate values via different resources
-        /// </summary>
-        /// <returns>
-        /// Adequate values. Either a FOUND value if found (i.e. DefaultGateway)...
-        /// ...or EMPTY, which will infer the required value cannot be found or, in this case, the device may not be connected to a Network
-        /// </returns>
-        private string checkSSID()
-        {
-            return this._SSID != EMPTY ? WIFI : ETHERNET_ONLY;
-        }
-
-        private string getExternalIP()
-        {
-            try
-            {
-                return new WebClient().DownloadString("https://api.ipify.org");
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        private string getDefaultGateway()
-        {
-            try
-            {
-                string DefaultGateway = EMPTY;
-                ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'TRUE'");
-
-                foreach (ManagementObject mo in mc.Get())
-                {
-                    string[] gateways = (string[])mo["DefaultIPGateway"];
-                    DefaultGateway = gateways[0];
-                    break;
-                }
-                return DefaultGateway;
-            }
-            catch (Exception Ex)
-            {
-                throw Ex;
-            }
-        }
-
-        private bool IsInternetAvailable()
-        {
-            try
-            {
-                using (var client = new WebClient())
-                using (var stream = client.OpenRead("http://www.google.com"))
-                {
-                    return true;
-                }
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private string getSSID()
-        {
-            try
-            {
-                WlanClient wlan = new WlanClient();
-
-                Collection<String> ConnectedSSIDs = new Collection<string>();
-
-                foreach (WlanClient.WlanInterface wlanInterface in wlan.Interfaces)
-                {
-                    Wlan.Dot11Ssid ssid = wlanInterface.CurrentConnection.wlanAssociationAttributes.dot11Ssid;
-                    ConnectedSSIDs.Add(new String(Encoding.ASCII.GetChars(ssid.SSID, 0, (int)ssid.SSIDLength)));
-                }
-                return ConnectedSSIDs[0];
-            }
-            catch (Win32Exception)
-            {
-                return EMPTY;
-            }
-            catch (Exception Ex)
-            {
-                throw Ex;
-            }
-        }
-
-        private bool IsNetworkAvailable(long minimumSpeed)
-        {
-            if (!NetworkInterface.GetIsNetworkAvailable())
-                return false;
-
-            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                // discard because of standard reasons
-                if ((ni.OperationalStatus != OperationalStatus.Up) ||
-                    (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback) ||
-                    (ni.NetworkInterfaceType == NetworkInterfaceType.Tunnel))
-                    continue;
-
-                // this allow to filter modems, serial, etc.
-                // I use 10000000 as a minimum speed for most cases
-                if (ni.Speed < minimumSpeed)
-                    continue;
-
-                // discard virtual cards (virtual box, virtual pc, etc.)
-                if ((ni.Description.IndexOf("virtual", StringComparison.OrdinalIgnoreCase) >= 0) ||
-                    (ni.Name.IndexOf("virtual", StringComparison.OrdinalIgnoreCase) >= 0))
-                    continue;
-
-                // discard "Microsoft Loopback Adapter", it will not show as NetworkInterfaceType.Loopback but as Ethernet Card.
-                if (ni.Description.Equals("Microsoft Loopback Adapter", StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                return true;
-            }
-            return false;
-        }
-
-        // Called if the device detects a change in the network status
-        private void NetworkAddressChanged(object sender, EventArgs e)
-        {
-            CheckNetworkAvailability();
         }
 
         /// <summary>
@@ -257,15 +134,21 @@ namespace IPCapture
                 if (val != propertyVal)
                 {
                     propertyVal = val;
-                    NotifyPropertyChanged(propertyName);
+                    OnPropertyChanged(propertyName);
                 }
             }
         }
 
-        private void NotifyPropertyChanged(string propertyName)
+        public void OnPropertyChanged(string propertyName)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        // Called if the device detects a change in the network status
+        private void NetworkAddressChanged(object sender, EventArgs e)
+        {
+            Console.WriteLine("NetworkAddressChanged");
+            this.CheckNetworkAvailability();
         }
     }
 }
