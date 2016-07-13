@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Net.NetworkInformation;
+using System.Threading;
 
 namespace IPCapture
 {
@@ -59,11 +60,20 @@ namespace IPCapture
 
         private void NetworkIsActive()
         {
+            Console.WriteLine("NetworkIsActive");
             this.DefaultGateway = NetworkActivities.getDefaultGateway();
             this.SSID = NetworkActivities.getSSID();
             this.NetworkConnectionType = NetworkActivities.checkSSID(this.SSID);
             this.NetworkConnection = ACTIVE;
 
+            Timer updateTimer = new Timer(CheckInternetConnection, null,
+                              TimeSpan.FromMilliseconds(800),
+                              TimeSpan.FromMilliseconds(-1));
+        }
+
+        private void CheckInternetConnection(object state)
+        {
+            Console.WriteLine("CheckInternetConnection");
             switch (NetworkActivities.IsInternetAvailable())
             {
                 case TRUE:
