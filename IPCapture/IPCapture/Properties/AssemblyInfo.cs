@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Managed Wifi API")]
-[assembly: AssemblyDescription(".NET managed wrapper for Windows Native Wifi API.")]
+[assembly: AssemblyTitle("Network Capture")]
+[assembly: AssemblyDescription("Small GUI widget to display devices current network information")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Monfort Software Engineering")]
-[assembly: AssemblyProduct("Managed Wifi API")]
-[assembly: AssemblyCopyright("Copyright © Monfort Software Engineering 2007")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("Network Capture")]
+[assembly: AssemblyCopyright("Copyright © 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
