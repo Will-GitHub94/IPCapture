@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Net.NetworkInformation;
 
 namespace IPCapture
 {
@@ -43,6 +44,8 @@ namespace IPCapture
             this.OperatingSystem = MachineActivities.getOperatingSystem();
             this.OSArchitecture = MachineActivities.getOSArchitecture();
             this.OSManufacturer = MachineActivities.getOSManufacturer();
+
+            NetworkChange.NetworkAddressChanged += NetworkAddressChanged;
         }
 
         public string SubnetMask
