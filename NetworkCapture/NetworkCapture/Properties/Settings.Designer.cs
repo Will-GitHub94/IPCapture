@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace IPCapture.Properties
+namespace NetworkCapture.Properties
 {
 
 
