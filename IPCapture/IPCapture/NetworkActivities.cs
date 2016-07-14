@@ -9,7 +9,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 
-namespace IPCapture
+namespace NetworkCapture
 {
     public class NetworkActivities
     {

@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Net.NetworkInformation;
 
-namespace IPCapture
+namespace NetworkCapture
 {
     /// <summary>
     /// Stores all the information required of the device the app is running on.

@@ -1,11 +1,11 @@
-﻿<Window x:Class="IPCapture.MainWindow"
+﻿<Window x:Class="NetworkCapture.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:IPCapture"
+        xmlns:local="clr-namespace:NetworkCapture"
         mc:Ignorable="d"
-        Title="IPCapture_GUI" Opacity="0.95" Background="Transparent" Foreground="White" FontFamily="Arial" FontSize="14" FontWeight="Bold" FontStretch="UltraExpanded" TextOptions.TextFormattingMode="Display" BorderThickness="0"
+        Title="Network Capture" Opacity="0.95" Background="Transparent" Foreground="White" FontFamily="Arial" FontSize="14" FontWeight="Bold" FontStretch="UltraExpanded" TextOptions.TextFormattingMode="Display" BorderThickness="0"
         Loaded="Window_Loaded" Activated="Window_Activated" WindowStartupLocation="CenterScreen" Height="Auto" Width="Auto" Cursor="Arrow" WindowStyle="None" AllowsTransparency="True" MouseLeftButtonDown="Window_MouseLeftButtonDown" Topmost="True" ResizeMode="CanResizeWithGrip" SizeToContent="WidthAndHeight">
     <Window.OpacityMask>
         <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">

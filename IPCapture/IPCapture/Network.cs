@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Net.NetworkInformation;
 using System.Threading;
 
-namespace IPCapture
+namespace NetworkCapture
 {
     /// <summary>
 	/// Stores all the information required of the network that the user is currently connected to.

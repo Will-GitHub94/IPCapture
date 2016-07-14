@@ -3,7 +3,7 @@ using System.Management;
 using System.Net;
 using System.Net.Sockets;
 
-namespace IPCapture
+namespace NetworkCapture
 {
     class MachineActivities
     {
