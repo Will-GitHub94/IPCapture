@@ -31,6 +31,8 @@ namespace NetworkCapture
         private string _NetworkConnectionType = EMPTY;
         private string _InternetConnection = EMPTY;
 
+        Timer updateTimer;
+
         // Events
         public event PropertyChangedEventHandler PropertyChanged;
         private object _lock = new object();
@@ -60,20 +62,31 @@ namespace NetworkCapture
 
         private void NetworkIsActive()
         {
-            Console.WriteLine("NetworkIsActive");
             this.DefaultGateway = NetworkActivities.getDefaultGateway();
             this.SSID = NetworkActivities.getSSID();
             this.NetworkConnectionType = NetworkActivities.checkSSID(this.SSID);
             this.NetworkConnection = ACTIVE;
 
-            Timer updateTimer = new Timer(CheckInternetConnection, null,
-                              TimeSpan.FromMilliseconds(800),
-                              TimeSpan.FromMilliseconds(-1));
+            try
+            {
+                updateTimer = new Timer(this.CheckInternetConnection, null, TimeSpan.FromMilliseconds(2000), TimeSpan.FromMilliseconds(-1));
+            }
+            catch (ArgumentOutOfRangeException Ex)
+            {
+                throw Ex;
+            }
+            catch (ArgumentNullException NEx)
+            {
+                throw NEx;
+            }
+            catch (Exception x)
+            {
+                throw x;
+            }
         }
 
         private void CheckInternetConnection(object state)
         {
-            Console.WriteLine("CheckInternetConnection");
             switch (NetworkActivities.IsInternetAvailable())
             {
                 case TRUE:
