@@ -16,6 +16,7 @@ namespace NetworkCapture
         private const string WIFI = "WIFI";
         private const string ETHERNET_ONLY = "ETHERNET ONLY";
         private const string EMPTY = "-";
+        private const string NOTHING = "";
         private const bool TRUE = true;
         private const bool FALSE = false;
 
@@ -120,6 +121,23 @@ namespace NetworkCapture
             {
                 throw Ex;
             }
+        }
+
+        public string getDNSSuffix()
+        {
+            string DNSSuffix = EMPTY;
+
+            NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (NetworkInterface adapter in adapters)
+            {
+                if (DNSSuffix != EMPTY)
+                    break;
+
+                IPInterfaceProperties properties = adapter.GetIPProperties();
+                if (properties.DnsSuffix != NOTHING)
+                    DNSSuffix = properties.DnsSuffix;
+            }
+            return DNSSuffix;
         }
 
         public bool IsNetworkAvailable(long minimumSpeed)

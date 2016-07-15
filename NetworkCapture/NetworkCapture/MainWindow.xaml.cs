@@ -45,6 +45,7 @@ namespace NetworkCapture
         private const string NETWORK_CONNECTION = "NetworkConnection";
         private const string NETWORK_CONNECTION_TYPE = "NetworkConnectionType";
         private const string INTERNET_CONNECTION = "InternetConnection";
+        private const string DNS_SUFFIX = "DNSSuffix";
 
         // Machine member variables
         private const string IPV4 = "IPv4";
@@ -98,6 +99,7 @@ namespace NetworkCapture
             addKeyValuePairRow(NETWORK, DEFAULT_GATEWAY);
             addKeyValuePairRow(NETWORK, INTERNET_CONNECTION);
             addKeyValuePairRow(NETWORK, EXTERNAL_IP);
+            addKeyValuePairRow(NETWORK, DNS_SUFFIX);
         }
 
         private void addKeyValuePairRow(string whichClass, string item)

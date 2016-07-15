@@ -22,11 +22,14 @@ namespace NetworkCapture
         private const bool FALSE = false;
         private const string INACTIVE = "INACTIVE";
         private const string ACTIVE = "ACTIVE";
+        private const string WIFI = "WIFI";
+        private const string ETHERNET_ONLY = "ETHERNET ONLY";
 
         // Member variables
         private string _DefaultGateway = EMPTY;
         private string _ExternalIP = EMPTY;
         private string _SSID = EMPTY;
+        private string _DNSSuffix = EMPTY;
         private string _NetworkConnection = EMPTY;
         private string _NetworkConnectionType = EMPTY;
         private string _InternetConnection = EMPTY;
@@ -65,6 +68,16 @@ namespace NetworkCapture
             this.DefaultGateway = NetworkActivities.getDefaultGateway();
             this.SSID = NetworkActivities.getSSID();
             this.NetworkConnectionType = NetworkActivities.checkSSID(this.SSID);
+
+            switch (this.NetworkConnectionType)
+            {
+                case ETHERNET_ONLY:
+                    this.DNSSuffix = NetworkActivities.getDNSSuffix();
+                    break;
+                case WIFI:
+                    /* do nothing */
+                    break;
+            }
             this.NetworkConnection = ACTIVE;
 
             try
@@ -130,6 +143,12 @@ namespace NetworkCapture
         {
             get { return this._SSID; }
             set { setter(value, "SSID", ref this._SSID); }
+        }
+
+        public string DNSSuffix
+        {
+            get { return this._DNSSuffix; }
+            set { setter(value, "DNSSuffix", ref this._DNSSuffix); }
         }
 
         public string NetworkConnection
