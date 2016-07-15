@@ -123,7 +123,7 @@ namespace NetworkCapture
             }
         }
 
-        public string getDNSSuffix() 
+        public string getDNSSuffix()  
         {
             string DNSSuffix = EMPTY;
 
