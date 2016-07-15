@@ -34,7 +34,7 @@ namespace NetworkCapture
         private string _NetworkConnectionType = EMPTY;
         private string _InternetConnection = EMPTY;
 
-        Timer updateTimer;
+        private Timer updateTimer;
 
         // Events
         public event PropertyChangedEventHandler PropertyChanged;
