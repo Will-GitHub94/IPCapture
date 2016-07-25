@@ -8,13 +8,15 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
+using System.Diagnostics;
 
 namespace NetworkCapture
 {
     public class NetworkActivities
     {
         private const string WIFI = "WIFI";
-        private const string ETHERNET_ONLY = "ETHERNET ONLY";
+        private const string ETHERNET = "ETHERNET";
+        private const string WIFI_AND_ETHERNET = "WIFI & ETHERNET";
         private const string EMPTY = "-";
         private const string NOTHING = "";
         private const bool TRUE = true;
@@ -30,17 +32,18 @@ namespace NetworkCapture
         /// Adequate values. Either a FOUND value if found (i.e. DefaultGateway)...
         /// ...or EMPTY, which will infer the required value cannot be found or, in this case, the device may not be connected to a Network
         /// </returns>
-        public string checkSSID(string SSID)
-        {
-            try
-            {
-                return SSID != EMPTY ? WIFI : ETHERNET_ONLY;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        /// 
+        //public string checkSSID(string SSID)
+        //{
+        //    try
+        //    {
+        //        return SSID != EMPTY ? WIFI : ETHERNET;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
 
         public string getExternalIP()
         {
@@ -49,6 +52,59 @@ namespace NetworkCapture
                 return new WebClient().DownloadString("https://api.ipify.org");
             }
             catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string getNetworkConnectionType()
+        {
+            try
+            {
+                var WLAN_Process = new Process
+                {
+                    StartInfo =
+                      {
+                          FileName = "netsh.exe",
+                          Arguments = "wlan show interfaces ",
+                          UseShellExecute = false,
+                          RedirectStandardOutput = true,
+                          CreateNoWindow = true
+                      }
+                };
+                WLAN_Process.Start();
+                var WLAN_Output = WLAN_Process.StandardOutput.ReadToEnd();
+
+                var LAN_Process = new Process
+                {
+                    StartInfo =
+                      {
+                          FileName = "netsh.exe",
+                          Arguments = "interface show interface name=\"Ethernet\" ",
+                          UseShellExecute = false,
+                          RedirectStandardOutput = true,
+                          CreateNoWindow = true
+                      }
+                };
+                LAN_Process.Start();
+                var LAN_Output = LAN_Process.StandardOutput.ReadToEnd();
+
+                var LAN_State = LAN_Output.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault(l => l.Contains("Connect state"));
+                var WLAN_State = WLAN_Output.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault(l => l.Contains("State"));
+
+                bool WLAN_STATE = !WLAN_State.Contains("disconnected");
+                bool LAN_STATE = !LAN_State.Contains("Disconnected");
+
+                if (WLAN_STATE && !LAN_STATE)
+                    return WIFI;
+                else if (!WLAN_STATE && LAN_STATE)
+                    return ETHERNET;
+                else if (WLAN_STATE && LAN_STATE)
+                    return WIFI_AND_ETHERNET;
+                else
+                    return EMPTY;
+
+            } catch (Exception ex)
             {
                 throw ex;
             }
@@ -103,7 +159,6 @@ namespace NetworkCapture
             try
             {
                 WlanClient wlan = new WlanClient();
-
                 Collection<String> ConnectedSSIDs = new Collection<string>();
 
                 foreach (WlanClient.WlanInterface wlanInterface in wlan.Interfaces)
@@ -130,10 +185,11 @@ namespace NetworkCapture
             NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
             foreach (NetworkInterface adapter in adapters)
             {
-                if (DNSSuffix != EMPTY)
-                    break;
+                //if (DNSSuffix != EMPTY)
+                //    break;
 
                 IPInterfaceProperties properties = adapter.GetIPProperties();
+                Console.WriteLine("\nDNSSuffix: {0}", properties.DnsSuffix);
                 if (properties.DnsSuffix != NOTHING)
                     DNSSuffix = properties.DnsSuffix;
             }

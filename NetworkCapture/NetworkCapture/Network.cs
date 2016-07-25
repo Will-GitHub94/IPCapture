@@ -23,7 +23,8 @@ namespace NetworkCapture
         private const string INACTIVE = "INACTIVE";
         private const string ACTIVE = "ACTIVE";
         private const string WIFI = "WIFI";
-        private const string ETHERNET_ONLY = "ETHERNET ONLY";
+        private const string ETHERNET = "ETHERNET";
+        private const string WIFI_AND_ETHERNET = "WIFI & ETHERNET";
 
         // Member variables
         private string _DefaultGateway = EMPTY;
@@ -66,31 +67,28 @@ namespace NetworkCapture
         private void NetworkIsActive()
         {
             this.DefaultGateway = NetworkActivities.getDefaultGateway();
-            this.SSID = NetworkActivities.getSSID();
-            this.NetworkConnectionType = NetworkActivities.checkSSID(this.SSID);
-
+            this.NetworkConnectionType = NetworkActivities.getNetworkConnectionType();
+            
             switch (this.NetworkConnectionType)
             {
-                case ETHERNET_ONLY:
+                case ETHERNET:
                     this.DNSSuffix = NetworkActivities.getDNSSuffix();
                     break;
-                case WIFI:
-                    /* do nothing */
+                case WIFI_AND_ETHERNET:
+                    this.DNSSuffix = NetworkActivities.getDNSSuffix();
+                    this.SSID = NetworkActivities.getSSID();
                     break;
-            }
+                case WIFI:
+                    this.SSID = NetworkActivities.getSSID();
+                    break;
+            }   
+
             this.NetworkConnection = ACTIVE;
 
             try
             {
+                // delay to check connection
                 updateTimer = new Timer(this.CheckInternetConnection, null, TimeSpan.FromMilliseconds(2000), TimeSpan.FromMilliseconds(-1));
-            }
-            catch (ArgumentOutOfRangeException Ex)
-            {
-                throw Ex;
-            }
-            catch (ArgumentNullException NEx)
-            {
-                throw NEx;
             }
             catch (Exception x)
             {
