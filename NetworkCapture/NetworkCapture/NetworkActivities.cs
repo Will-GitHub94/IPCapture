@@ -32,19 +32,7 @@ namespace NetworkCapture
         /// Adequate values. Either a FOUND value if found (i.e. DefaultGateway)...
         /// ...or EMPTY, which will infer the required value cannot be found or, in this case, the device may not be connected to a Network
         /// </returns>
-        /// 
-        //public string checkSSID(string SSID)
-        //{
-        //    try
-        //    {
-        //        return SSID != EMPTY ? WIFI : ETHERNET;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-
+        ///
         public string getExternalIP()
         {
             try
