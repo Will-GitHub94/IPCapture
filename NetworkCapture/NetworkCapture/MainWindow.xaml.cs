@@ -250,6 +250,9 @@ namespace NetworkCapture
                 case INTERNET_CONNECTION:
                     setValueByLabelName(INTERNET_CONNECTION, Network.InternetConnection);
                     break;
+                case DNS_SUFFIX:
+                    setValueByLabelName(DNS_SUFFIX, Network.DNSSuffix);
+                    break;
             }
         }
 

@@ -173,11 +173,10 @@ namespace NetworkCapture
             NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
             foreach (NetworkInterface adapter in adapters)
             {
-                //if (DNSSuffix != EMPTY)
-                //    break;
+                if (DNSSuffix != EMPTY)
+                    break;
 
                 IPInterfaceProperties properties = adapter.GetIPProperties();
-                Console.WriteLine("\nDNSSuffix: {0}", properties.DnsSuffix);
                 if (properties.DnsSuffix != NOTHING)
                     DNSSuffix = properties.DnsSuffix;
             }

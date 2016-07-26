@@ -73,12 +73,14 @@ namespace NetworkCapture
             {
                 case ETHERNET:
                     this.DNSSuffix = NetworkActivities.getDNSSuffix();
+                    this.SSID = EMPTY;
                     break;
                 case WIFI_AND_ETHERNET:
                     this.DNSSuffix = NetworkActivities.getDNSSuffix();
                     this.SSID = NetworkActivities.getSSID();
                     break;
                 case WIFI:
+                    this.DNSSuffix = EMPTY;
                     this.SSID = NetworkActivities.getSSID();
                     break;
             }   
@@ -116,6 +118,7 @@ namespace NetworkCapture
             this.ExternalIP = EMPTY;
             this.DefaultGateway = EMPTY;
             this.SSID = EMPTY;
+            this.DNSSuffix = EMPTY;
             this.NetworkConnectionType = EMPTY;
 
             this.NetworkConnection = INACTIVE;
