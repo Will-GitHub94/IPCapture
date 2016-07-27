@@ -14,6 +14,8 @@ namespace NetworkCapture
 {
     public class NetworkActivities
     {
+        private ExceptionHandling ExceptionHandling;
+
         private const string WIFI = "WIFI";
         private const string ETHERNET = "ETHERNET";
         private const string WIFI_AND_ETHERNET = "WIFI & ETHERNET";
@@ -23,7 +25,9 @@ namespace NetworkCapture
         private const bool FALSE = false;
 
         public NetworkActivities()
-        {}
+        {
+            ExceptionHandling = new ExceptionHandling();
+        }
 
         /// <summary>
         /// These are the methods that get the appropriate values via different resources
@@ -41,7 +45,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                throw ex;
+                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
             }
         }
 
@@ -94,7 +98,7 @@ namespace NetworkCapture
 
             } catch (Exception ex)
             {
-                throw ex;
+                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
             }
         }
 
@@ -120,9 +124,9 @@ namespace NetworkCapture
                 }
                 return DefaultGateway;
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                throw Ex;
+                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
             }
         }
 
@@ -160,27 +164,33 @@ namespace NetworkCapture
             {
                 return EMPTY;
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                throw Ex;
+                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
             }
         }
 
         public string getDNSSuffix()  
         {
-            string DNSSuffix = EMPTY;
-
-            NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
-            foreach (NetworkInterface adapter in adapters)
+            try
             {
-                if (DNSSuffix != EMPTY)
-                    break;
+                string DNSSuffix = EMPTY;
 
-                IPInterfaceProperties properties = adapter.GetIPProperties();
-                if (properties.DnsSuffix != NOTHING)
-                    DNSSuffix = properties.DnsSuffix;
+                NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+                foreach (NetworkInterface adapter in adapters)
+                {
+                    if (DNSSuffix != EMPTY)
+                        break;
+
+                    IPInterfaceProperties properties = adapter.GetIPProperties();
+                    if (properties.DnsSuffix != NOTHING)
+                        DNSSuffix = properties.DnsSuffix;
+                }
+                return DNSSuffix;
+            } catch (Exception ex)
+            {
+                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
             }
-            return DNSSuffix;
         }
 
         public bool IsNetworkAvailable(long minimumSpeed)

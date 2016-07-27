@@ -5,9 +5,16 @@ using System.Net.Sockets;
 
 namespace NetworkCapture
 {
-    class MachineActivities
+    public class MachineActivities
     {
+        private ExceptionHandling ExceptionHandling;
+
         private const string EMPTY = "-";
+
+        public MachineActivities()
+        {
+            ExceptionHandling = new ExceptionHandling();
+        }
 
         public string getIPv4()
         {
@@ -26,7 +33,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                throw ex;
+                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
             }
         }
 
@@ -48,7 +55,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                throw ex;
+                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
             }
         }
 
@@ -68,7 +75,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                throw ex;
+                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
             }
         }
 
@@ -88,7 +95,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                throw ex;
+                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
             }
         }
 
@@ -100,7 +107,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                throw ex;
+                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
             }
         }
 
@@ -119,7 +126,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                throw ex;
+                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
             }
         }
 
@@ -138,7 +145,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                throw ex;
+                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
             }
         }
 
@@ -147,7 +154,7 @@ namespace NetworkCapture
             try
             {
                 string Manufacturer = EMPTY;
-                ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
+                ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM");
 
                 foreach (ManagementObject mo in mc.Get())
                 {
@@ -157,7 +164,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                throw ex;
+                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
             }
         }
     }

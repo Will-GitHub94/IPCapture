@@ -16,6 +16,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Net.Sockets;
 using System.Management;
+using System.Drawing;
 using System.ComponentModel;
 using System.Net.NetworkInformation;
 using System.Collections.ObjectModel;
@@ -114,6 +115,19 @@ namespace NetworkCapture
                 setValueByLastAdded(Network.GetType().GetProperty(item).GetValue(Network, null).ToString());
         }
 
+        private void checkIfValueIsError(Label valueLabel, string value)
+        {
+            if (value.Contains("-----"))
+            {
+                valueLabel.Foreground = Brushes.Black;
+                valueLabel.FontStyle = FontStyles.Italic;
+            } else
+            {
+                valueLabel.Foreground = Brushes.White;
+                valueLabel.FontStyle = FontStyles.Normal;
+            }
+        }
+
         private void setValueByLastAdded(string value)
         {
             Label valueLabel = GridMain.Children
@@ -121,17 +135,20 @@ namespace NetworkCapture
                 .First(e => Grid.GetRow(e) == (GridMain.RowDefinitions.Count - 1) && Grid.GetColumn(e) == 1);
 
             valueLabel.Content = value;
+
+            checkIfValueIsError(valueLabel, value);
         }
 
         private void setValueByLabelName(string propertyName, string propertyVal)
         {
             this.Dispatcher.Invoke((Action)(() =>
             {
-                foreach (Label label in GridMain.Children.Cast<Label>())
+                foreach (Label valueLabel in GridMain.Children.Cast<Label>())
                 {
-                    if (label.Name == (propertyName + "_val"))
+                    if (valueLabel.Name == (propertyName + "_val"))
                     {
-                        label.Content = propertyVal;
+                        valueLabel.Content = propertyVal;
+                        checkIfValueIsError(valueLabel, propertyVal);
                         break;
                     }
                 }
@@ -158,7 +175,6 @@ namespace NetworkCapture
 
             newLabel_val.FontWeight = FontWeights.UltraLight;
             newLabel_val.FontSize = 12;
-            newLabel_val.Foreground = Brushes.White;
             newLabel_val.HorizontalAlignment = HorizontalAlignment.Right;
             newLabel_val.VerticalAlignment = VerticalAlignment.Center;
 
