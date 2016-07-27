@@ -7,7 +7,7 @@ namespace NetworkCapture
 {
     public class MachineActivities
     {
-        private ExceptionHandling ExceptionHandling;
+        private ExceptionHandling ExceptionHandling; 
 
         private const string EMPTY = "-";
 
