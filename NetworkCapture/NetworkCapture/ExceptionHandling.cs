@@ -10,7 +10,7 @@ namespace NetworkCapture
     {
         public string getExceptionMessage(Exception ex)
         {
-            return ex.Message;
+            return "----- " + ex.Message + " -----";
         }
     }
 }

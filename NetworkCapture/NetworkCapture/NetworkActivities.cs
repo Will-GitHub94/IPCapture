@@ -45,7 +45,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
+                return ExceptionHandling.getExceptionMessage(ex);
             }
         }
 
@@ -98,7 +98,7 @@ namespace NetworkCapture
 
             } catch (Exception ex)
             {
-                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
+                return ExceptionHandling.getExceptionMessage(ex);
             }
         }
 
@@ -126,7 +126,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
+                return ExceptionHandling.getExceptionMessage(ex);
             }
         }
 
@@ -166,7 +166,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
+                return ExceptionHandling.getExceptionMessage(ex);
             }
         }
 
@@ -189,7 +189,7 @@ namespace NetworkCapture
                 return DNSSuffix;
             } catch (Exception ex)
             {
-                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
+                return ExceptionHandling.getExceptionMessage(ex);
             }
         }
 

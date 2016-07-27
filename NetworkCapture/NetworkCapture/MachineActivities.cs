@@ -33,7 +33,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
+                return ExceptionHandling.getExceptionMessage(ex);
             }
         }
 
@@ -55,7 +55,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
+                return ExceptionHandling.getExceptionMessage(ex);
             }
         }
 
@@ -75,7 +75,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
+                return ExceptionHandling.getExceptionMessage(ex);
             }
         }
 
@@ -95,7 +95,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
+                return ExceptionHandling.getExceptionMessage(ex);
             }
         }
 
@@ -107,7 +107,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
+                return ExceptionHandling.getExceptionMessage(ex);
             }
         }
 
@@ -126,7 +126,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
+                return ExceptionHandling.getExceptionMessage(ex);
             }
         }
 
@@ -145,7 +145,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
+                return ExceptionHandling.getExceptionMessage(ex);
             }
         }
 
@@ -154,7 +154,7 @@ namespace NetworkCapture
             try
             {
                 string Manufacturer = EMPTY;
-                ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM");
+                ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
 
                 foreach (ManagementObject mo in mc.Get())
                 {
@@ -164,7 +164,7 @@ namespace NetworkCapture
             }
             catch (Exception ex)
             {
-                return "----- " + ExceptionHandling.getExceptionMessage(ex) + " -----";
+                return ExceptionHandling.getExceptionMessage(ex);
             }
         }
     }
