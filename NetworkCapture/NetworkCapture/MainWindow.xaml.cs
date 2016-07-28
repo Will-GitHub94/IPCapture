@@ -194,8 +194,6 @@ namespace NetworkCapture
             Label newLabel_key = new Label();
             newLabel_key.Name = (keyName + "_key");
 
-            newLabel_key.Content = keyName;
-
             Grid.SetRow(newLabel_key, (GridMain.RowDefinitions.Count - 1));
             Grid.SetColumn(newLabel_key, 0);
 
@@ -205,11 +203,13 @@ namespace NetworkCapture
             {
                 case TRUE:
                     Grid.SetColumnSpan(newLabel_key, 2);
-                    newLabel_key.FontWeight = FontWeights.Bold;
-                    newLabel_key.FontSize = 13;
+                    newLabel_key.FontWeight = FontWeights.ExtraBold;
+                    newLabel_key.FontSize = 15;
 
                     labelThick.Bottom = 3;
                     labelThick.Top = 3;
+
+                    newLabel_key.Content = "----- " + keyName + " -----";
                     break;
                 case FALSE:
                     newLabel_key.FontWeight = FontWeights.UltraLight;
@@ -217,6 +217,8 @@ namespace NetworkCapture
 
                     labelThick.Bottom = 1;
                     labelThick.Top = 1;
+
+                    newLabel_key.Content = keyName;
                     break;
             }
 
