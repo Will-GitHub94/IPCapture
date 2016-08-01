@@ -189,6 +189,39 @@ namespace NetworkCapture
             GridMain.Children.Add(newLabel_val);
         }
 
+        private string getKeyName(string key)
+        {
+            switch (key)
+            {
+                case MAC_ADDRESS:
+                    return "MAC Address";
+                case SUBNET_MASK:
+                    return "Subnet Mask";
+                case MACHINE_NAME:
+                    return "Machine Name";
+                case OPERATING_SYSTEM:
+                    return "Operating System";
+                case OS_ARCHITECTURE:
+                    return "OS Architecture";
+                case OS_MANUFACTURER:
+                    return "OS Manufacturer";
+                case NETWORK_CONNECTION:
+                    return "Network State";
+                case NETWORK_CONNECTION_TYPE:
+                    return "Connection Type(s)";
+                case DEFAULT_GATEWAY:
+                    return "Default Gateway";
+                case INTERNET_CONNECTION:
+                    return "Internet State";
+                case EXTERNAL_IP:
+                    return "External IP";
+                case DNS_SUFFIX:
+                    return "DNS Suffix";
+                default:
+                    return key;
+            }
+        }
+
         private void addKeyLabel(string keyName, bool isHeader)
         {
             Label newLabel_key = new Label();
@@ -218,7 +251,7 @@ namespace NetworkCapture
                     labelThick.Bottom = 1;
                     labelThick.Top = 1;
 
-                    newLabel_key.Content = keyName;
+                    newLabel_key.Content = getKeyName(keyName);
                     break;
             }
 
