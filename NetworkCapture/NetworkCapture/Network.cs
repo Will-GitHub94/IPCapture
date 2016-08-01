@@ -34,8 +34,16 @@ namespace NetworkCapture
         private string _NetworkConnection = EMPTY;
         private string _NetworkConnectionType = EMPTY;
         private string _InternetConnection = EMPTY;
+        private string _DownloadSpeed = EMPTY;
+        private string _UploadSpeed = EMPTY;
 
-        private Timer updateTimer;
+        private string adapterDescription = EMPTY;
+
+        // Timers
+        private Timer toUpdateInternetConnection;
+        private Timer toUpdateDownloadSpeed;
+        private TimeSpan delayTime = new TimeSpan(0, 0, 5);
+        private TimeSpan intervalTime = new TimeSpan(0, 0, 5);
 
         // Events
         public event PropertyChangedEventHandler PropertyChanged;
@@ -72,16 +80,22 @@ namespace NetworkCapture
             switch (this.NetworkConnectionType)
             {
                 case ETHERNET:
-                    this.DNSSuffix = NetworkActivities.getDNSSuffix();
+                    this.DNSSuffix = NetworkActivities.getDNSSuffix()[1];
                     this.SSID = EMPTY;
+
+                    adapterDescription = NetworkActivities.getDNSSuffix()[0];
                     break;
                 case WIFI_AND_ETHERNET:
-                    this.DNSSuffix = NetworkActivities.getDNSSuffix();
-                    this.SSID = NetworkActivities.getSSID();
+                    this.DNSSuffix = NetworkActivities.getDNSSuffix()[1];
+                    this.SSID = NetworkActivities.getSSID()[1];
+
+                    adapterDescription = NetworkActivities.getDNSSuffix()[0];
                     break;
                 case WIFI:
                     this.DNSSuffix = EMPTY;
-                    this.SSID = NetworkActivities.getSSID();
+                    this.SSID = NetworkActivities.getSSID()[1];
+
+                    adapterDescription = NetworkActivities.getSSID()[0];
                     break;
             }   
 
@@ -90,7 +104,7 @@ namespace NetworkCapture
             try
             {
                 // delay to check connection
-                updateTimer = new Timer(this.CheckInternetConnection, null, TimeSpan.FromMilliseconds(2000), TimeSpan.FromMilliseconds(-1));
+                toUpdateInternetConnection = new Timer(this.CheckInternetConnection, null, TimeSpan.FromMilliseconds(2000), TimeSpan.FromMilliseconds(-1));
             }
             catch (Exception x)
             {
@@ -105,12 +119,19 @@ namespace NetworkCapture
                 case TRUE:
                     this.ExternalIP = NetworkActivities.getExternalIP();
                     this.InternetConnection = ACTIVE;
+
+                    toUpdateDownloadSpeed = new Timer(this.getNetworkSpeed, null, delayTime, intervalTime);
                     break;
                 case FALSE:
                     this.ExternalIP = EMPTY;
                     this.InternetConnection = INACTIVE;
                     break;
             }
+        }
+
+        private void getNetworkSpeed(object state)
+        {
+            this.DownloadSpeed = NetworkActivities.getDownloadSpeed(adapterDescription);
         }
 
         private void NetworkIsInactive()
@@ -120,13 +141,14 @@ namespace NetworkCapture
             this.SSID = EMPTY;
             this.DNSSuffix = EMPTY;
             this.NetworkConnectionType = EMPTY;
+            this.DownloadSpeed = EMPTY;
 
             this.NetworkConnection = INACTIVE;
             this.InternetConnection = INACTIVE;
         }
 
         /// <summary>
-        /// Getter/setter methods that will (hopfully) update the property when changed
+        /// Getter/setter methods that will update the property when changed
         /// </summary>
         public string DefaultGateway
         {
@@ -168,6 +190,18 @@ namespace NetworkCapture
         {
             get { return this._InternetConnection; }
             set { setter(value, "InternetConnection", ref this._InternetConnection); }
+        }
+
+        public string DownloadSpeed
+        {
+            get { return this._DownloadSpeed; }
+            set { setter(value, "DownloadSpeed", ref this._DownloadSpeed); }
+        }
+
+        public string UploadSpeed
+        {
+            get { return this._UploadSpeed; }
+            set { setter(value, "UploadSpeed", ref this._UploadSpeed); }
         }
 
         private void setter(string val, string propertyName, ref string propertyVal)

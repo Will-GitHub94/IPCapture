@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Text;
-using System.Management;
 using System.Net;
 using NativeWifi;
 using System.Net.NetworkInformation;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading;
 using System.Diagnostics;
+using System.Threading;
 
 namespace NetworkCapture
 {
@@ -37,6 +36,7 @@ namespace NetworkCapture
         /// ...or EMPTY, which will infer the required value cannot be found or, in this case, the device may not be connected to a Network
         /// </returns>
         ///
+
         public string getExternalIP()
         {
             try
@@ -146,8 +146,12 @@ namespace NetworkCapture
             }
         }
 
-        public string getSSID()
+        public string[] getSSID()
         {
+            string[] wirelessInfo = new string[2];
+            wirelessInfo[0] = EMPTY;
+            wirelessInfo[1] = EMPTY;
+
             try
             {
                 WlanClient wlan = new WlanClient();
@@ -155,42 +159,69 @@ namespace NetworkCapture
 
                 foreach (WlanClient.WlanInterface wlanInterface in wlan.Interfaces)
                 {
+                    wirelessInfo[0] = wlanInterface.InterfaceDescription;
                     Wlan.Dot11Ssid ssid = wlanInterface.CurrentConnection.wlanAssociationAttributes.dot11Ssid;
                     ConnectedSSIDs.Add(new String(Encoding.ASCII.GetChars(ssid.SSID, 0, (int)ssid.SSIDLength)));
                 }
-                return ConnectedSSIDs[0];
-            }
-            catch (Win32Exception)
-            {
-                return EMPTY;
+                wirelessInfo[1] = ConnectedSSIDs[0];
             }
             catch (Exception ex)
+            {
+                wirelessInfo[1] = ExceptionHandling.getExceptionMessage(ex);
+            }
+            return wirelessInfo;
+        }
+
+        public string getDownloadSpeed(string adapterDescription)
+        {
+            try
+            {
+                string DownloadSpeed = EMPTY;
+
+                NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+                foreach (NetworkInterface adapter in adapters)
+                {
+                    if (adapter.Description == adapterDescription)
+                    {
+                        Console.WriteLine("\nDescription.............{0}", adapter.Description);
+                        Console.WriteLine("Bytes received..........{0}", ((adapter.GetIPv4Statistics().BytesReceived / 1024f) / 1024f) * 8);
+                        DownloadSpeed = (((adapter.GetIPv4Statistics().BytesReceived / 1024f) / 1024f) * 8).ToString();
+                        Thread.Sleep(1000);
+                    }
+                }
+                return DownloadSpeed;
+            } catch (Exception ex)
             {
                 return ExceptionHandling.getExceptionMessage(ex);
             }
         }
 
-        public string getDNSSuffix()  
+        public string[] getDNSSuffix()  
         {
+            string[] wiredInfo = new string[2];
+            wiredInfo[0] = EMPTY;
+            wiredInfo[1] = EMPTY;
+
             try
             {
-                string DNSSuffix = EMPTY;
-
                 NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
                 foreach (NetworkInterface adapter in adapters)
                 {
-                    if (DNSSuffix != EMPTY)
+                    if (wiredInfo[1] != EMPTY)
                         break;
 
                     IPInterfaceProperties properties = adapter.GetIPProperties();
                     if (properties.DnsSuffix != NOTHING)
-                        DNSSuffix = properties.DnsSuffix;
+                    {
+                        wiredInfo[0] = adapter.Description;
+                        wiredInfo[1] = properties.DnsSuffix;
+                    }
                 }
-                return DNSSuffix;
             } catch (Exception ex)
             {
-                return ExceptionHandling.getExceptionMessage(ex);
+                wiredInfo[1] = ExceptionHandling.getExceptionMessage(ex);
             }
+            return wiredInfo;
         }
 
         public bool IsNetworkAvailable(long minimumSpeed)

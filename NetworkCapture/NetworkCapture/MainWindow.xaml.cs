@@ -47,6 +47,8 @@ namespace NetworkCapture
         private const string NETWORK_CONNECTION_TYPE = "NetworkConnectionType";
         private const string INTERNET_CONNECTION = "InternetConnection";
         private const string DNS_SUFFIX = "DNSSuffix";
+        private const string DOWNLOAD_SPEED = "DownloadSpeed";
+        private const string UPLOAD_SPEED = "UploadSpeed";
 
         // Machine member variables
         private const string IPV4 = "IPv4";
@@ -101,6 +103,7 @@ namespace NetworkCapture
             addKeyValuePairRow(NETWORK, INTERNET_CONNECTION);
             addKeyValuePairRow(NETWORK, EXTERNAL_IP);
             addKeyValuePairRow(NETWORK, DNS_SUFFIX);
+            addKeyValuePairRow(NETWORK, DOWNLOAD_SPEED);
         }
 
         private void addKeyValuePairRow(string whichClass, string item)
@@ -217,6 +220,10 @@ namespace NetworkCapture
                     return "External IP";
                 case DNS_SUFFIX:
                     return "DNS Suffix";
+                case DOWNLOAD_SPEED:
+                    return "Download (Mbps)";
+                case UPLOAD_SPEED:
+                    return "Upload";
                 default:
                     return key;
             }
@@ -303,6 +310,9 @@ namespace NetworkCapture
                     break;
                 case DNS_SUFFIX:
                     setValueByLabelName(DNS_SUFFIX, Network.DNSSuffix);
+                    break;
+                case DOWNLOAD_SPEED:
+                    setValueByLabelName(DOWNLOAD_SPEED, Network.DownloadSpeed);
                     break;
             }
         }
