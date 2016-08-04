@@ -183,9 +183,7 @@ namespace NetworkCapture
                 {
                     if (adapter.Description == adapterDescription)
                     {
-                        Console.WriteLine("\nDescription.............{0}", adapter.Description);
-                        Console.WriteLine("Bytes received..........{0}", ((adapter.GetIPv4Statistics().BytesReceived / 1024f) / 1024f) * 8);
-                        DownloadSpeed = (((adapter.GetIPv4Statistics().BytesReceived / 1024f) / 1024f) * 8).ToString();
+                        DownloadSpeed = ((adapter.GetIPv4Statistics().BytesReceived / 1024f) / 1024f).ToString("n2");
                         Thread.Sleep(1000);
                     }
                 }
