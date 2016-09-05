@@ -36,14 +36,15 @@ namespace NetworkCapture
         private string _InternetConnection = EMPTY;
         private string _DownloadSpeed = EMPTY;
         private string _UploadSpeed = EMPTY;
+        private string _ISP = EMPTY;
 
         private string adapterDescription = EMPTY;
 
         // Timers
         private Timer toUpdateInternetConnection;
         private Timer toUpdateDownloadSpeed;
-        private TimeSpan delayTime = new TimeSpan(0, 0, 5);
-        private TimeSpan intervalTime = new TimeSpan(0, 0, 5);
+        private TimeSpan delayTime = new TimeSpan(0, 0, 2);
+        private TimeSpan intervalTime = new TimeSpan(0, 0, 3);
 
         // Events
         public event PropertyChangedEventHandler PropertyChanged;
@@ -118,6 +119,7 @@ namespace NetworkCapture
             {
                 case TRUE:
                     this.ExternalIP = NetworkActivities.getExternalIP();
+                    this.ISP = NetworkActivities.getISP(this.ExternalIP);
                     this.InternetConnection = ACTIVE;
 
                     toUpdateDownloadSpeed = new Timer(this.getNetworkSpeed, null, delayTime, intervalTime);
@@ -137,6 +139,7 @@ namespace NetworkCapture
         private void NetworkIsInactive()
         {
             this.ExternalIP = EMPTY;
+            this.ISP = EMPTY;
             this.DefaultGateway = EMPTY;
             this.SSID = EMPTY;
             this.DNSSuffix = EMPTY;
@@ -202,6 +205,12 @@ namespace NetworkCapture
         {
             get { return this._UploadSpeed; }
             set { setter(value, "UploadSpeed", ref this._UploadSpeed); }
+        }
+
+        public string ISP
+        {
+            get { return this._ISP; }
+            set { setter(value, "ISP", ref this._ISP); }
         }
 
         private void setter(string val, string propertyName, ref string propertyVal)

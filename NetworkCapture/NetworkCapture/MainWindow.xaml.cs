@@ -26,6 +26,7 @@ namespace NetworkCapture
         // Network member variables
         private const string DEFAULT_GATEWAY = "DefaultGateway";
         private const string EXTERNAL_IP = "ExternalIP";
+        private const string ISP = "ISP";
         private const string SSID = "SSID";
         private const string NETWORK_CONNECTION = "NetworkConnection";
         private const string NETWORK_CONNECTION_TYPE = "NetworkConnectionType";
@@ -87,6 +88,7 @@ namespace NetworkCapture
             addKeyValuePairRow(NETWORK, INTERNET_CONNECTION);
             addKeyValuePairRow(NETWORK, EXTERNAL_IP);
             addKeyValuePairRow(NETWORK, DNS_SUFFIX);
+            addKeyValuePairRow(NETWORK, ISP);
             addKeyValuePairRow(NETWORK, DOWNLOAD_SPEED);
         }
 
@@ -294,6 +296,9 @@ namespace NetworkCapture
                     break;
                 case DNS_SUFFIX:
                     setValueByLabelName(DNS_SUFFIX, Network.DNSSuffix);
+                    break;
+                case ISP:
+                    setValueByLabelName(ISP, Network.ISP);
                     break;
                 case DOWNLOAD_SPEED:
                     setValueByLabelName(DOWNLOAD_SPEED, Network.DownloadSpeed);

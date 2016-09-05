@@ -53,6 +53,9 @@ namespace NetworkCapture
         {
             try
             {
+                bool WLAN_STATE = false;
+                bool LAN_STATE = false;
+
                 var WLAN_Process = new Process
                 {
                     StartInfo =
@@ -84,8 +87,11 @@ namespace NetworkCapture
                 var LAN_State = LAN_Output.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault(l => l.Contains("Connect state"));
                 var WLAN_State = WLAN_Output.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault(l => l.Contains("State"));
 
-                bool WLAN_STATE = !WLAN_State.Contains("disconnected");
-                bool LAN_STATE = !LAN_State.Contains("Disconnected");
+                if (WLAN_State != null)
+                    WLAN_STATE = !WLAN_State.Contains("disconnected");
+                
+                if (LAN_State != null)
+                    LAN_STATE = !LAN_State.Contains("Disconnected");
 
                 if (WLAN_STATE && !LAN_STATE)
                     return WIFI;
@@ -252,6 +258,22 @@ namespace NetworkCapture
                 return TRUE;
             }
             return FALSE;
+        }
+
+        public string getISP(string externalIP)
+        {
+            try
+            {
+                string whoIsMyISP = new WebClient().DownloadString("https://www.whoismyisp.org/ip/" + externalIP);
+                int start = whoIsMyISP.IndexOf("<h1>") + "<h1>".Length;
+                int end = whoIsMyISP.IndexOf("</h1>");
+
+                return whoIsMyISP.Substring(start, end - start);
+            }
+            catch (Exception ex)
+            {
+                return ExceptionHandling.getExceptionMessage(ex);
+            }
         }
     }
 }
