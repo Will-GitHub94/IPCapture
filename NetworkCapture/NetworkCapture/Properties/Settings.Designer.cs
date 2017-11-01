@@ -22,5 +22,17 @@ namespace NetworkCapture.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string NIC {
+            get {
+                return ((string)(this["NIC"]));
+            }
+            set {
+                this["NIC"] = value;
+            }
+        }
     }
 }

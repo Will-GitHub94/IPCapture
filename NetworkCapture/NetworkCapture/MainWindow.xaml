@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:NetworkCapture"
         mc:Ignorable="d"
         Title="Network Capture" Opacity="0.95" Background="Transparent" Foreground="White" FontFamily="Arial" FontSize="14" FontWeight="Bold" FontStretch="UltraExpanded" TextOptions.TextFormattingMode="Display" BorderThickness="0"
-        Loaded="Window_Loaded" Activated="Window_Activated" WindowStartupLocation="CenterScreen" Height="Auto" Width="Auto" Cursor="Arrow" WindowStyle="None" AllowsTransparency="True" MouseLeftButtonDown="Window_MouseLeftButtonDown" Topmost="True" SizeToContent="WidthAndHeight" Icon="NetworkCaptureIcon.ico">
+        Loaded="Window_Loaded" Activated="Window_Activated" WindowStartupLocation="CenterScreen" Height="Auto" Width="Auto" Cursor="Arrow" WindowStyle="None" AllowsTransparency="True" MouseLeftButtonDown="Window_MouseLeftButtonDown" Topmost="True" SizeToContent="WidthAndHeight" Icon="NetworkCaptureIcon.ico" IsVisibleChanged="Window_IsVisibleChanged">
     <Window.OpacityMask>
         <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
             <GradientStop Color="Black"/>

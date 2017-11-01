@@ -10,7 +10,7 @@ namespace NetworkCapture
         private ExceptionHandling ExceptionHandling; 
 
         private const string EMPTY = "-";
-
+        
         public MachineActivities()
         {
             ExceptionHandling = new ExceptionHandling();
@@ -64,9 +64,9 @@ namespace NetworkCapture
             try
             {
                 string MACAddress = EMPTY;
-                ManagementObjectSearcher mc = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'TRUE'");
+                var mc = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'TRUE'");
 
-                foreach (ManagementObject mo in mc.Get())
+                foreach (var mo in mc.Get())
                 {
                     MACAddress = (string)mo["MACAddress"];
                     break;

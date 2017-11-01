@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.ComponentModel;
+using System.Configuration;
 
 namespace NetworkCapture
 {
@@ -47,6 +48,17 @@ namespace NetworkCapture
 
         public MainWindow()
         {
+            if (!SetConfigurations())
+            {
+                InitializeConfigurationSettings();
+            } else
+            {
+                Initialize();
+            }
+        }
+
+        private void Initialize()
+        {
             Network = new Network();
             Machine = new Machine();
 
@@ -54,6 +66,23 @@ namespace NetworkCapture
             Machine.PropertyChanged += new PropertyChangedEventHandler(this.MachinePropertyChanged);
 
             InitializeComponent();
+        }
+
+        private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            Initialize();
+        }
+
+        private void InitializeConfigurationSettings()
+        {
+            this.Hide();
+            ConfigWindow ConfigWindow = new ConfigWindow(this);
+            ConfigWindow.Show();
+        }
+
+        private bool SetConfigurations()
+        {
+            return (Properties.Settings.Default.NIC == "");
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -90,6 +119,7 @@ namespace NetworkCapture
             addKeyValuePairRow(NETWORK, DNS_SUFFIX);
             addKeyValuePairRow(NETWORK, ISP);
             addKeyValuePairRow(NETWORK, DOWNLOAD_SPEED);
+            addKeyValuePairRow(NETWORK, UPLOAD_SPEED);
         }
 
         private void addKeyValuePairRow(string whichClass, string item)
@@ -207,9 +237,9 @@ namespace NetworkCapture
                 case DNS_SUFFIX:
                     return "DNS Suffix";
                 case DOWNLOAD_SPEED:
-                    return "Download (MB/s)";
+                    return "Download (KB/s)";
                 case UPLOAD_SPEED:
-                    return "Upload";
+                    return "Upload (KB/s)";
                 default:
                     return key;
             }
@@ -302,6 +332,9 @@ namespace NetworkCapture
                     break;
                 case DOWNLOAD_SPEED:
                     setValueByLabelName(DOWNLOAD_SPEED, Network.DownloadSpeed);
+                    break;
+                case UPLOAD_SPEED:
+                    setValueByLabelName(UPLOAD_SPEED, Network.UploadSpeed);
                     break;
             }
         }

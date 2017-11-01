@@ -4,10 +4,10 @@ using System.Net;
 using NativeWifi;
 using System.Net.NetworkInformation;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Diagnostics;
 using System.Threading;
+using System.Configuration;
 
 namespace NetworkCapture
 {
@@ -178,23 +178,51 @@ namespace NetworkCapture
             return wirelessInfo;
         }
 
-        public string getDownloadSpeed(string adapterDescription)
+
+        public string getDownloadSpeed()
         {
             try
             {
-                string DownloadSpeed = EMPTY;
+                string DownloadSpeedInKB = EMPTY;
 
-                NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
-                foreach (NetworkInterface adapter in adapters)
-                {
-                    if (adapter.Description == adapterDescription)
-                    {
-                        DownloadSpeed = ((adapter.GetIPv4Statistics().BytesReceived / 1024f) / 1024f).ToString("n2");
-                        Thread.Sleep(1000);
-                    }
-                }
-                return DownloadSpeed;
+                NetworkInterface nic = NetworkInterface.GetAllNetworkInterfaces()
+                    .FirstOrDefault(n => n.Name == Properties.Settings.Default.NIC);
+
+                long bytesReceivedBefore = nic.GetIPv4Statistics().BytesReceived;
+                Thread.Sleep(5000);
+                long bytesReceivedAfter = nic.GetIPv4Statistics().BytesReceived;
+
+                long totalBytesReceived = bytesReceivedAfter - bytesReceivedBefore;
+
+                DownloadSpeedInKB = ((totalBytesReceived / 5) / 1024).ToString();
+
+                return DownloadSpeedInKB;
             } catch (Exception ex)
+            {
+                return ExceptionHandling.getExceptionMessage(ex);
+            }
+        }
+
+        public string getUploadSpeed()
+        {
+            try
+            {
+                string UploadSpeedInKB = EMPTY;
+
+                NetworkInterface nic = NetworkInterface.GetAllNetworkInterfaces()
+                    .FirstOrDefault(n => n.Name == Properties.Settings.Default.NIC);
+
+                long bytesSentBefore = nic.GetIPv4Statistics().BytesSent;
+                Thread.Sleep(5000);
+                long bytesSentAfter = nic.GetIPv4Statistics().BytesSent;
+
+                long totalBytesSent = bytesSentAfter - bytesSentBefore;
+
+                UploadSpeedInKB = ((totalBytesSent / 5) / 1024).ToString();
+
+                return UploadSpeedInKB;
+            }
+            catch (Exception ex)
             {
                 return ExceptionHandling.getExceptionMessage(ex);
             }

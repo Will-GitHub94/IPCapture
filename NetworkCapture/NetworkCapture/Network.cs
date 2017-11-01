@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
+using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading;
 
@@ -44,7 +47,7 @@ namespace NetworkCapture
         private Timer toUpdateInternetConnection;
         private Timer toUpdateDownloadSpeed;
         private TimeSpan delayTime = new TimeSpan(0, 0, 2);
-        private TimeSpan intervalTime = new TimeSpan(0, 0, 3);
+        private readonly TimeSpan _intervalTime = new TimeSpan(0, 0, 3);
 
         // Events
         public event PropertyChangedEventHandler PropertyChanged;
@@ -122,7 +125,7 @@ namespace NetworkCapture
                     this.ISP = NetworkActivities.getISP(this.ExternalIP);
                     this.InternetConnection = ACTIVE;
 
-                    toUpdateDownloadSpeed = new Timer(this.getNetworkSpeed, null, delayTime, intervalTime);
+                    toUpdateDownloadSpeed = new Timer(this.getNetworkSpeed, null, delayTime, _intervalTime);
                     break;
                 case FALSE:
                     this.ExternalIP = EMPTY;
@@ -133,7 +136,8 @@ namespace NetworkCapture
 
         private void getNetworkSpeed(object state)
         {
-            this.DownloadSpeed = NetworkActivities.getDownloadSpeed(adapterDescription);
+            this.DownloadSpeed = NetworkActivities.getDownloadSpeed();
+            this.UploadSpeed = NetworkActivities.getUploadSpeed();
         }
 
         private void NetworkIsInactive()
